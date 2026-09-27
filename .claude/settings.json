@@ -1,0 +1,15 @@
+{
+  "enabledMcpjsonServers": ["figma", "playwright"],
+  "permissions": {
+    "allow": [
+      "Bash(tools/preview/serve.sh)",
+      "Bash(node tools/preview/screenshots.mjs:*)",
+      "Bash(node tools/preview/sections.mjs:*)",
+      "mcp__playwright__browser_navigate",
+      "mcp__playwright__browser_resize",
+      "mcp__playwright__browser_take_screenshot",
+      "mcp__playwright__browser_snapshot",
+      "mcp__playwright__browser_console_messages"
+    ]
+  }
+}
