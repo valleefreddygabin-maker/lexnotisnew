@@ -1,0 +1,11 @@
+node_modules/
+dist/
+.output/
+.vinxi/
+.tanstack/
+.preview/
+tools/preview/node_modules/
+tools/preview/.tanstack/
+screenshots/tmp/
+*.log
+.DS_Store
