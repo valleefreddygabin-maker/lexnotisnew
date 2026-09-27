@@ -14,44 +14,45 @@ const AI_BRANDS = [
   { name: "DeepMind", src: "https://cdn.simpleicons.org/deepmind/4285F4" },
 ];
 
+function hideBrokenImage(e: React.SyntheticEvent<HTMLImageElement>) {
+  e.currentTarget.style.display = "none";
+}
+
+/**
+ * The one marquee on the page: constant, linear motion (it's a list that doesn't
+ * need individual attention). Logos stay grey until hovered so the row reads as texture.
+ */
 export function AiMarquee() {
   const items = [...AI_BRANDS, ...AI_BRANDS];
   return (
-    <section
-      aria-label="Technologies IA partenaires"
-      className="relative overflow-hidden border-y border-black/10 bg-secondary/40 py-10"
-    >
-      <div className="mx-auto mb-6 max-w-7xl px-6 text-center">
-        <p className="text-xs font-semibold uppercase tracking-[0.24em] text-gradient-brand">
-          Écosystème IA
-        </p>
-        <p className="mt-2 text-sm text-muted-foreground">
-          Nous intégrons les meilleures intelligences artificielles du marché
-        </p>
-      </div>
+    <section aria-label="Technologies IA partenaires" className="py-16 md:py-20">
+      <p className="container-page text-center text-[15px] text-muted-foreground">
+        Nous intégrons les meilleures intelligences artificielles du marché
+      </p>
 
-      <div className="group relative">
-        <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-24 bg-gradient-to-r from-background to-transparent" />
-        <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-24 bg-gradient-to-l from-background to-transparent" />
-
-        <div className="flex w-max animate-marquee gap-12 group-hover:[animation-play-state:paused]">
+      <div className="marquee-pause mask-fade-x mt-8 overflow-hidden">
+        <ul className="animate-marquee flex w-max items-center gap-12 pr-12 md:gap-16 md:pr-16">
           {items.map((brand, i) => (
-            <div
+            <li
               key={`${brand.name}-${i}`}
-              className="flex shrink-0 items-center gap-3 rounded-xl border border-black/5 bg-card/60 px-6 py-3 backdrop-blur-sm transition-transform duration-300 hover:-translate-y-0.5 hover:border-brand"
+              aria-hidden={i >= AI_BRANDS.length}
+              className="flex shrink-0 items-center gap-2.5 opacity-60 grayscale transition-[opacity,filter] duration-300 hover:opacity-100 hover:grayscale-0"
             >
               <img
                 src={brand.src}
-                alt={`${brand.name} logo`}
+                alt=""
                 loading="lazy"
-                className="h-6 w-6"
+                width={24}
+                height={24}
+                onError={hideBrokenImage}
+                className="h-6 w-6 object-contain"
               />
-              <span className="text-sm font-medium tracking-tight text-foreground whitespace-nowrap">
+              <span className="whitespace-nowrap text-[17px] font-medium tracking-[-0.02em] text-foreground">
                 {brand.name}
               </span>
-            </div>
+            </li>
           ))}
-        </div>
+        </ul>
       </div>
     </section>
   );

@@ -118,13 +118,13 @@ export function CookieConsentProvider({ children }: { children: React.ReactNode 
       {children}
 
       {showBanner && (
-        <div className="fixed left-0 bottom-0 z-50 p-4 sm:p-5">
-          <div className="animate-fade-up w-[min(92vw,24rem)] overflow-hidden rounded-2xl border border-black/10 bg-white/95 shadow-card backdrop-blur-md">
+        <div className="fixed bottom-0 left-0 z-[55] p-4 sm:p-5">
+          <div className="animate-fade-up w-[min(calc(100vw-2rem),24rem)] overflow-hidden rounded-[22px] bg-card/95 shadow-[0_0_0_1px_var(--border),var(--shadow-float)] backdrop-blur-xl">
             {!showPreferences ? (
               <div className="flex flex-col gap-3 p-4">
                 <div className="flex items-start gap-3">
-                  <span className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-violet/10 to-blue-accent/10">
-                    <Cookie className="h-4 w-4 text-violet" />
+                  <span className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-brand-soft">
+                    <Cookie className="h-4 w-4 text-brand" strokeWidth={1.75} />
                   </span>
                   <div className="min-w-0">
                     <h3 className="text-sm font-semibold text-foreground">Votre vie privée</h3>
@@ -136,17 +136,14 @@ export function CookieConsentProvider({ children }: { children: React.ReactNode 
                 </div>
 
                 <div className="flex flex-col gap-2">
-                  <button
-                    onClick={acceptAll}
-                    className="inline-flex w-full items-center justify-center gap-1.5 rounded-full bg-gradient-brand px-4 py-2 text-sm font-medium text-primary-foreground shadow-glow transition hover:scale-105"
-                  >
+                  <button onClick={acceptAll} className="btn btn-ink btn-sm w-full">
                     <Check className="h-4 w-4" />
                     Tout accepter
                   </button>
                   <div className="grid grid-cols-2 gap-2">
                     <button
                       onClick={rejectAll}
-                      className="inline-flex items-center justify-center rounded-full border border-black/10 bg-white px-3 py-2 text-xs font-medium text-foreground transition hover:bg-black/5"
+                      className="btn btn-ghost btn-sm"
                     >
                       Tout refuser
                     </button>
@@ -164,7 +161,7 @@ export function CookieConsentProvider({ children }: { children: React.ReactNode 
                         );
                         setShowPreferences(true);
                       }}
-                      className="inline-flex items-center justify-center gap-0.5 rounded-full border border-black/10 bg-white px-3 py-2 text-xs font-medium text-violet transition hover:bg-black/5"
+                      className="btn btn-ghost btn-sm gap-0.5"
                     >
                       Personnaliser
                       <ChevronRight className="h-3 w-3" />
@@ -176,8 +173,8 @@ export function CookieConsentProvider({ children }: { children: React.ReactNode 
               <div className="flex max-h-[70vh] flex-col p-4">
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex items-center gap-2.5">
-                    <span className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-violet/10 to-blue-accent/10">
-                      <ShieldCheck className="h-4 w-4 text-violet" />
+                    <span className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-brand-soft">
+                      <ShieldCheck className="h-4 w-4 text-brand" strokeWidth={1.75} />
                     </span>
                     <div>
                       <h3 className="text-sm font-semibold text-foreground">Personnaliser</h3>
@@ -186,7 +183,7 @@ export function CookieConsentProvider({ children }: { children: React.ReactNode 
                   </div>
                   <button
                     onClick={close}
-                    className="rounded-full p-1 text-muted-foreground transition hover:bg-black/5 hover:text-foreground"
+                    className="rounded-full p-1.5 text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
                     aria-label="Fermer"
                   >
                     <X className="h-4 w-4" />
@@ -202,15 +199,15 @@ export function CookieConsentProvider({ children }: { children: React.ReactNode 
                         className={cn(
                           "flex items-start justify-between gap-3 rounded-xl border p-3 transition",
                           value && cat.id !== "necessary"
-                            ? "border-violet/30 bg-violet/[0.03]"
-                            : "border-black/8 bg-white",
+                            ? "border-brand/30 bg-brand-soft/60"
+                            : "border-border bg-card",
                         )}
                       >
                         <div className="min-w-0">
                           <div className="flex items-center gap-2">
                             <span className="text-sm font-semibold text-foreground">{cat.title}</span>
                             {cat.required && (
-                              <span className="rounded-full bg-black/5 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+                              <span className="rounded-full bg-secondary px-1.5 py-0.5 font-mono text-[10px] text-muted-foreground">
                                 Obligatoire
                               </span>
                             )}
@@ -229,16 +226,10 @@ export function CookieConsentProvider({ children }: { children: React.ReactNode 
                 </div>
 
                 <div className="mt-3 flex flex-col gap-2">
-                  <button
-                    onClick={saveCustom}
-                    className="inline-flex items-center justify-center rounded-full bg-gradient-brand px-4 py-2 text-sm font-medium text-primary-foreground shadow-glow transition hover:scale-105"
-                  >
+                  <button onClick={saveCustom} className="btn btn-ink btn-sm w-full">
                     Enregistrer mes choix
                   </button>
-                  <button
-                    onClick={rejectAll}
-                    className="inline-flex items-center justify-center rounded-full border border-black/10 bg-white px-4 py-2 text-xs font-medium text-foreground transition hover:bg-black/5"
-                  >
+                  <button onClick={rejectAll} className="btn btn-ghost btn-sm w-full">
                     Tout refuser
                   </button>
                 </div>

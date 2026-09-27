@@ -1,6 +1,6 @@
-import { Reveal } from "@/components/Reveal";
-import { GradientLink } from "@/components/GradientButton";
+import { Link } from "@tanstack/react-router";
 import { ArrowRight } from "lucide-react";
+import { Reveal } from "@/components/Reveal";
 
 // Logos multicolores officiels (dégradés Instagram, Google Drive, etc. préservés)
 const tools: { name: string; src: string }[] = [
@@ -22,64 +22,56 @@ const tools: { name: string; src: string }[] = [
   { name: "WordPress", src: "https://svgl.app/library/wordpress.svg" },
 ];
 
+function hideBrokenImage(e: React.SyntheticEvent<HTMLImageElement>) {
+  e.currentTarget.style.visibility = "hidden";
+}
 
 export function IntegrationsSection() {
-  const row = [...tools, ...tools];
-
   return (
-    <section className="px-6 py-24">
-      <div className="mx-auto max-w-5xl text-center">
+    <section className="py-24 md:py-32">
+      <div className="container-page">
         <Reveal>
-          <div
-            className="group relative overflow-hidden"
-            style={{
-              maskImage:
-                "linear-gradient(to right, transparent, black 12%, black 88%, transparent)",
-              WebkitMaskImage:
-                "linear-gradient(to right, transparent, black 12%, black 88%, transparent)",
-            }}
-          >
-            <div className="flex w-max animate-marquee gap-4 py-2 group-hover:[animation-play-state:paused]">
-              {row.map((t, i) => (
-                <div
-                  key={`${t.name}-${i}`}
-                  title={t.name}
-                  className="flex h-20 w-20 shrink-0 items-center justify-center rounded-2xl border border-black/10 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-glow"
-                >
-                  <img
-                    src={t.src}
-                    alt={`Logo ${t.name}`}
-                    loading="lazy"
-                    className="h-9 w-9 object-contain"
-                  />
-                </div>
-              ))}
-            </div>
+          <div className="mx-auto max-w-2xl text-center">
+            <h2 className="type-h2">Connectez LexNotis à tous vos outils du quotidien</h2>
+            <p className="type-lead mx-auto mt-5 max-w-xl">
+              Email, agenda, CRM, facturation, réseaux sociaux, tableurs : vos outils communiquent
+              enfin entre eux, sans friction.
+            </p>
           </div>
         </Reveal>
 
+        <ul className="mx-auto mt-14 grid max-w-4xl grid-cols-4 gap-2.5 sm:grid-cols-8 sm:gap-3">
+          {tools.map((t, i) => (
+            <Reveal as="li" key={t.name} delay={Math.min(i, 12) * 30}>
+              <div
+                title={t.name}
+                className="surface flex aspect-square items-center justify-center rounded-2xl transition-transform duration-200 ease-out hover:-translate-y-0.5"
+              >
+                <img
+                  src={t.src}
+                  alt={t.name}
+                  loading="lazy"
+                  width={30}
+                  height={30}
+                  onError={hideBrokenImage}
+                  className="h-[30px] w-[30px] object-contain"
+                />
+              </div>
+            </Reveal>
+          ))}
+        </ul>
 
         <Reveal delay={120}>
-          <div className="mt-10">
-            <span className="inline-flex items-center rounded-full border border-black/10 bg-gradient-brand-soft px-4 py-1.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-foreground">
-              Des milliers d'intégrations possibles
-            </span>
-            <h2 className="mt-6 text-3xl font-bold tracking-tight md:text-5xl">
-              Connectez LexNotis à
-              <br />
-              <span className="text-gradient-brand">tous vos outils du quotidien</span>
-            </h2>
-            <p className="mx-auto mt-4 max-w-2xl text-sm text-muted-foreground md:text-base">
-              Email, agenda, CRM, facturation, réseaux sociaux, tableurs : vos outils communiquent
-              enfin entre eux. On centralise vos workflows et on automatise vos opérations sans
-              friction.
-            </p>
-            <div className="mt-8 flex justify-center">
-              <GradientLink to="/contact">
-                Vérifier mes outils <ArrowRight size={16} />
-              </GradientLink>
-            </div>
-          </div>
+          <p className="mt-10 text-center text-[15px] text-muted-foreground">
+            Et des milliers d'autres.{" "}
+            <Link to="/contact" className="group inline-flex items-center gap-1 font-medium text-brand">
+              Vérifier mes outils
+              <ArrowRight
+                size={15}
+                className="transition-transform duration-200 ease-out group-hover:translate-x-[3px]"
+              />
+            </Link>
+          </p>
         </Reveal>
       </div>
     </section>

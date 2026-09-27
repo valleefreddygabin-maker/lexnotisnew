@@ -1,14 +1,12 @@
-import { Link } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
-import { LogIn, Menu, UserPlus, X } from "lucide-react";
+import { Link, useRouterState } from "@tanstack/react-router";
+import { useEffect, useRef, useState } from "react";
+import { ArrowRight, LogIn, UserPlus } from "lucide-react";
 import { Logo } from "./Logo";
 import { GradientLink } from "./GradientButton";
 import { useAuth } from "@/hooks/useAuth";
 import { socials } from "@/lib/socials";
 import { hasAccountOnDevice } from "@/lib/account-state";
-
-
-
+import { cn } from "@/lib/utils";
 
 const nav = [
   { to: "/", label: "Accueil" },
@@ -22,9 +20,10 @@ const nav = [
 export function Header() {
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const [progress, setProgress] = useState(0);
   const { session } = useAuth();
   const [hasAccount, setHasAccount] = useState(false);
+  const sentinel = useRef<HTMLDivElement>(null);
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
 
   useEffect(() => {
     const sync = () => setHasAccount(hasAccountOnDevice());
@@ -42,146 +41,155 @@ export function Header() {
     if (session) setHasAccount(true);
   }, [session]);
 
-  const accountLabel = session ? "Mon espace" : hasAccount ? "Se connecter" : "Créer un compte";
-  const AccountIcon = session || hasAccount ? LogIn : UserPlus;
-
+  // "Scrolled" state from a sentinel at the top of the document (no scroll listener).
   useEffect(() => {
-    const onScroll = () => {
-      setScrolled(window.scrollY > 10);
-      const docHeight = document.documentElement.scrollHeight - window.innerHeight;
-      const pct = docHeight > 0 ? (window.scrollY / docHeight) * 100 : 0;
-      setProgress(Math.min(100, Math.max(0, pct)));
-    };
-    onScroll();
-    window.addEventListener("scroll", onScroll);
-    return () => window.removeEventListener("scroll", onScroll);
+    const el = sentinel.current;
+    if (!el) return;
+    const io = new IntersectionObserver(([entry]) => setScrolled(!entry.isIntersecting));
+    io.observe(el);
+    return () => io.disconnect();
   }, []);
 
+  // Close the mobile menu on navigation and with Escape.
+  useEffect(() => setOpen(false), [pathname]);
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && setOpen(false);
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [open]);
+
+  const accountLabel = session ? "Mon espace" : hasAccount ? "Se connecter" : "Créer un compte";
+  const AccountIcon = session || hasAccount ? LogIn : UserPlus;
+  const accountTo = session ? "/dashboard" : "/connexion";
 
   return (
-    <header
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        scrolled
-          ? "border-b border-black/10 bg-background/70 backdrop-blur-xl"
-          : "bg-transparent"
-      }`}
-    >
-      <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-2.5">
-        <Logo />
+    <>
+      <div ref={sentinel} aria-hidden className="pointer-events-none absolute left-0 top-0 h-3 w-px" />
+      <header
+        data-scrolled={scrolled || open}
+        className="group/header fixed inset-x-0 top-0 z-50 transition-[background-color,box-shadow,backdrop-filter] duration-300 data-[scrolled=true]:bg-background/80 data-[scrolled=true]:shadow-[0_1px_0_var(--border)] data-[scrolled=true]:backdrop-blur-xl data-[scrolled=true]:backdrop-saturate-150"
+      >
+        <div className="container-page flex h-16 items-center justify-between gap-6">
+          <Logo glow={false} />
 
-
-        <nav className="hidden items-center gap-1 md:flex">
-          {nav.map((item) => (
-            <Link
-              key={item.to}
-              to={item.to}
-              className="group relative px-3 py-1.5 text-xs text-muted-foreground transition-colors hover:text-foreground"
-              activeProps={{ className: "text-foreground" }}
-              activeOptions={{ exact: true }}
-            >
-              <span>{item.label}</span>
-              <span className="absolute bottom-0.5 left-1/2 h-px w-0 -translate-x-1/2 bg-gradient-brand transition-all duration-300 group-hover:w-5 data-[status=active]:w-5" />
-            </Link>
-          ))}
-        </nav>
-
-        <div className="hidden items-center gap-2 md:flex">
-          <div className="mr-1 flex items-center gap-1">
-            {socials.map((social) => {
-              const Icon = social.icon;
-              return (
-                <a
-                  key={social.name}
-                  href={social.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label={social.name}
-                  className="inline-flex h-8 w-8 items-center justify-center rounded-full text-muted-foreground transition-all duration-300 hover:scale-110 hover:text-brand"
-                >
-                  <Icon className="h-4 w-4" />
-                </a>
-              );
-            })}
-          </div>
-          <Link
-            to={session ? "/dashboard" : "/connexion"}
-            className="inline-flex items-center gap-1.5 rounded-full border border-black/15 bg-black/5 px-3 py-2 text-xs text-foreground transition-all duration-300 hover:scale-[1.03] hover:bg-black/10"
-          >
-            <AccountIcon size={13} /> {accountLabel}
-          </Link>
-
-          <GradientLink to="/contact" className="!px-4 !py-2 !text-xs">
-            Démarrer un projet
-          </GradientLink>
-        </div>
-
-
-        <button
-          onClick={() => setOpen((v) => !v)}
-          className="rounded-full border border-black/10 bg-black/5 p-1.5 text-foreground md:hidden"
-          aria-label="Menu"
-        >
-          {open ? <X size={16} /> : <Menu size={16} />}
-        </button>
-      </div>
-
-      {/* Scroll progress */}
-      <div className="h-[2px] w-full overflow-hidden bg-black/5">
-        <div
-          className="h-full bg-gradient-brand transition-all duration-150 ease-out"
-          style={{ width: `${progress}%` }}
-        />
-      </div>
-
-      {open && (
-        <div className="animate-fade-in border-t border-black/10 bg-background/95 backdrop-blur-xl md:hidden">
-          <nav className="mx-auto flex max-w-7xl flex-col gap-1 px-6 py-4">
+          <nav aria-label="Navigation principale" className="hidden items-center lg:flex">
             {nav.map((item) => (
               <Link
                 key={item.to}
                 to={item.to}
-                onClick={() => setOpen(false)}
-                className="rounded-lg px-3 py-3 text-sm text-muted-foreground transition-colors hover:bg-black/5 hover:text-foreground"
-                activeProps={{ className: "bg-black/5 text-foreground" }}
+                className="rounded-full px-3.5 py-2 text-[14px] text-muted-foreground transition-colors duration-200 hover:text-foreground data-[status=active]:text-foreground"
+                activeProps={{ className: "font-medium" }}
                 activeOptions={{ exact: true }}
               >
                 {item.label}
               </Link>
             ))}
-            <Link
-              to={session ? "/dashboard" : "/connexion"}
-              onClick={() => setOpen(false)}
-              className="mt-1 flex items-center gap-2 rounded-lg px-3 py-3 text-sm text-muted-foreground transition-colors hover:bg-black/5 hover:text-foreground"
-            >
-              <AccountIcon size={15} /> {accountLabel}
-            </Link>
-
-
-            <GradientLink to="/contact" className="mt-2 !w-full">
-              Démarrer un projet
-            </GradientLink>
-
-            <div className="mt-4 flex items-center gap-2 border-t border-black/10 pt-4">
-              {socials.map((social) => {
-                const Icon = social.icon;
-                return (
-                  <a
-                    key={social.name}
-                    href={social.href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    aria-label={social.name}
-                    onClick={() => setOpen(false)}
-                    className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-black/10 bg-black/5 text-muted-foreground transition-all duration-300 hover:scale-110 hover:border-brand hover:text-brand"
-                  >
-                    <Icon className="h-5 w-5" />
-                  </a>
-                );
-              })}
-            </div>
           </nav>
+
+          <div className="hidden items-center gap-2 lg:flex">
+            <Link
+              to={accountTo}
+              className="hidden items-center gap-1.5 rounded-full px-3 py-2 text-[14px] text-muted-foreground transition-colors duration-200 hover:text-foreground xl:inline-flex"
+            >
+              <AccountIcon size={15} strokeWidth={1.75} /> {accountLabel}
+            </Link>
+            <GradientLink to="/contact" size="sm">
+              Discuter de mon projet
+            </GradientLink>
+          </div>
+
+          <button
+            type="button"
+            onClick={() => setOpen((v) => !v)}
+            className="relative -mr-2 flex h-10 w-10 items-center justify-center rounded-full text-foreground transition-transform duration-150 ease-out active:scale-95 lg:hidden"
+            aria-label={open ? "Fermer le menu" : "Ouvrir le menu"}
+            aria-expanded={open}
+            aria-controls="mobile-menu"
+          >
+            <span className="relative block h-3 w-5" aria-hidden>
+              <span
+                className={cn(
+                  "absolute left-0 top-0 h-[1.5px] w-5 rounded-full bg-current transition-transform duration-300 ease-[var(--ease-out)]",
+                  open && "translate-y-[5.25px] rotate-45",
+                )}
+              />
+              <span
+                className={cn(
+                  "absolute bottom-0 left-0 h-[1.5px] w-5 rounded-full bg-current transition-transform duration-300 ease-[var(--ease-out)]",
+                  open && "-translate-y-[5.25px] -rotate-45",
+                )}
+              />
+            </span>
+          </button>
         </div>
-      )}
-    </header>
+
+        {/* Scroll progress (CSS scroll-driven, progressive enhancement) */}
+        <div
+          aria-hidden
+          className="absolute inset-x-0 bottom-0 h-px opacity-0 transition-opacity duration-300 group-data-[scrolled=true]/header:opacity-100"
+        >
+          <div className="scroll-progress h-full w-full bg-brand" />
+        </div>
+
+        {/* Mobile menu */}
+        <div
+          id="mobile-menu"
+          data-open={open}
+          className="grid grid-rows-[0fr] transition-[grid-template-rows] duration-300 ease-[var(--ease-drawer)] data-[open=true]:grid-rows-[1fr] lg:hidden"
+        >
+          <div className="overflow-hidden">
+            <nav
+              aria-label="Menu mobile"
+              className={cn(
+                "container-page flex flex-col pb-6 pt-2 transition-opacity duration-200",
+                open ? "opacity-100" : "opacity-0",
+              )}
+            >
+              {nav.map((item, i) => (
+                <Link
+                  key={item.to}
+                  to={item.to}
+                  onClick={() => setOpen(false)}
+                  className={cn(
+                    "border-b border-border py-3.5 text-[22px] font-medium tracking-[-0.02em] text-foreground/70 transition-[transform,opacity,color] duration-300 ease-[var(--ease-out)] data-[status=active]:text-foreground",
+                    open ? "translate-y-0 opacity-100" : "-translate-y-2 opacity-0",
+                  )}
+                  style={{ transitionDelay: open ? `${60 + i * 30}ms` : "0ms" }}
+                  activeOptions={{ exact: true }}
+                >
+                  {item.label}
+                </Link>
+              ))}
+              <div className="mt-6 flex flex-col gap-3">
+                <GradientLink to="/contact" className="w-full">
+                  Discuter de mon projet <ArrowRight size={16} />
+                </GradientLink>
+                <GradientLink to={accountTo} variant="ghost" className="w-full">
+                  <AccountIcon size={16} strokeWidth={1.75} /> {accountLabel}
+                </GradientLink>
+              </div>
+              <div className="mt-6 flex items-center gap-1">
+                {socials.map((social) => {
+                  const Icon = social.icon;
+                  return (
+                    <a
+                      key={social.name}
+                      href={social.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label={social.name}
+                      className="inline-flex h-10 w-10 items-center justify-center rounded-full text-muted-foreground transition-colors hover:text-foreground [&_svg]:h-[18px] [&_svg]:w-[18px]"
+                    >
+                      <Icon />
+                    </a>
+                  );
+                })}
+              </div>
+            </nav>
+          </div>
+        </div>
+      </header>
+    </>
   );
 }

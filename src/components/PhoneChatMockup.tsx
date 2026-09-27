@@ -11,7 +11,7 @@ const conversation: Msg[] = [
   },
   {
     from: "bot",
-    text: "C'est fait ✅ Devis n°2418 généré depuis votre modèle et envoyé à Clément par email.",
+    text: "C'est fait. Devis n°2418 généré depuis votre modèle et envoyé à Clément par email.",
     time: "11:02",
   },
   {
@@ -94,7 +94,13 @@ function BatteryGlyph() {
   );
 }
 
-export function PhoneChatMockup() {
+interface Props {
+  /** Fade the bottom of the phone into the page (for inline sections). */
+  fade?: boolean;
+  className?: string;
+}
+
+export function PhoneChatMockup({ fade = false, className = "" }: Props) {
   const [visible, setVisible] = useState(0);
   const [typing, setTyping] = useState(false);
   const [time, setTime] = useState(() =>
@@ -122,41 +128,51 @@ export function PhoneChatMockup() {
         setTime(
           new Date().toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" }),
         ),
-      1000,
+      15000,
     );
     return () => clearInterval(timer);
   }, []);
 
+  // Play the conversation once: user messages appear, the agent "types" before each reply.
   useEffect(() => {
-    if (!started) return;
-    if (visible >= conversation.length) return;
+    if (!started || visible >= conversation.length) return;
     const isBot = conversation[visible].from === "bot";
-    if (isBot && !typing) {
+    if (isBot) {
       setTyping(true);
-      const t = setTimeout(() => setTyping(false), 1100);
+      const t = setTimeout(() => {
+        setTyping(false);
+        setVisible((v) => v + 1);
+      }, 1300);
       return () => clearTimeout(t);
     }
-    const t = setTimeout(() => setVisible((v) => v + 1), isBot ? 200 : 900);
+    const t = setTimeout(() => setVisible((v) => v + 1), visible === 0 ? 500 : 1100);
     return () => clearTimeout(t);
-  }, [started, visible, typing]);
+  }, [started, visible]);
 
   const lastUserIndex = conversation
     .slice(0, visible)
     .reduce((acc, m, i) => (m.from === "user" ? i : acc), -1);
 
   return (
-    <div ref={ref} className="relative mx-auto w-[280px] sm:w-[320px]" style={{ fontFamily: IOS_FONT }}>
-      <div className="absolute -inset-10 -z-10 rounded-full bg-gradient-brand opacity-15 blur-3xl" />
+    <div
+      ref={ref}
+      className={`relative mx-auto w-[280px] sm:w-[308px] ${className}`}
+      style={{ fontFamily: IOS_FONT }}
+    >
       <div
-        className="relative rounded-[3rem] border border-black/10 bg-foreground p-[10px] shadow-2xl"
-        style={{
-          maskImage: "linear-gradient(to bottom, black 62%, transparent 100%)",
-          WebkitMaskImage: "linear-gradient(to bottom, black 62%, transparent 100%)",
-        }}
+        className="relative rounded-[3rem] bg-[oklch(0.18_0.012_286)] p-[9px] shadow-[inset_0_0_0_1px_oklch(1_0_0/0.14),0_0_0_1px_oklch(0.2_0.02_286/0.2),0_30px_80px_-24px_oklch(0.2_0.05_289/0.45),0_12px_24px_-12px_oklch(0.2_0.02_286/0.3)]"
+        style={
+          fade
+            ? {
+                maskImage: "linear-gradient(to bottom, black 62%, transparent 100%)",
+                WebkitMaskImage: "linear-gradient(to bottom, black 62%, transparent 100%)",
+              }
+            : undefined
+        }
       >
         <div className="relative overflow-hidden rounded-[2.5rem] bg-white">
           {/* Dynamic Island */}
-          <div className="absolute left-1/2 top-[9px] z-30 h-[26px] w-[86px] -translate-x-1/2 rounded-full bg-foreground" />
+          <div className="absolute left-1/2 top-[9px] z-30 h-[26px] w-[86px] -translate-x-1/2 rounded-full bg-[oklch(0.18_0.012_286)]" />
 
           {/* Barre d'état iOS */}
           <div className="relative z-20 flex h-[44px] items-center justify-between px-[22px] pt-[6px] text-black">
@@ -181,7 +197,7 @@ export function PhoneChatMockup() {
               <ChevronLeft className="h-6 w-6" strokeWidth={2.5} />
             </button>
             <div className="flex flex-1 flex-col items-center">
-              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-brand text-[10px] font-semibold text-primary-foreground">
+              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-brand text-[10px] font-semibold text-primary-foreground">
                 LN
               </div>
               <p className="mt-0.5 text-[11px] font-medium leading-tight tracking-[-0.1px] text-black">
@@ -197,11 +213,14 @@ export function PhoneChatMockup() {
               <span className="font-semibold text-[#3C3C43]">aujourd&apos;hui</span> {time}
             </p>
             {conversation.slice(0, visible).map((m, i) => (
-              <div key={i} className="animate-fade-up">
+              <div
+                key={i}
+                className={`message-in ${m.from === "user" ? "message-in-user" : "message-in-bot"}`}
+              >
                 <div
                   className={`max-w-[80%] px-[13px] py-[7px] text-[13px] leading-[1.3] tracking-[-0.1px] ${
                     m.from === "user"
-                      ? "ml-auto rounded-[19px] bg-gradient-brand text-primary-foreground"
+                      ? "ml-auto rounded-[19px] bg-brand text-primary-foreground"
                       : "mr-auto rounded-[19px] bg-[#E9E9EB] text-black"
                   }`}
                 >
@@ -215,11 +234,11 @@ export function PhoneChatMockup() {
               </div>
             ))}
             {typing && (
-              <div className="mr-auto flex items-center gap-1 rounded-[19px] bg-[#E9E9EB] px-4 py-3">
-                {[0, 150, 300].map((d) => (
+              <div className="message-in message-in-bot mr-auto flex items-center gap-1 rounded-[19px] bg-[#E9E9EB] px-4 py-3">
+                {[0, 160, 320].map((d) => (
                   <span
                     key={d}
-                    className="h-1.5 w-1.5 animate-bounce rounded-full bg-[#8E8E93]"
+                    className="h-1.5 w-1.5 animate-[typing-bounce_1.2s_ease-in-out_infinite] rounded-full bg-[#8E8E93]"
                     style={{ animationDelay: `${d}ms` }}
                   />
                 ))}
@@ -234,7 +253,7 @@ export function PhoneChatMockup() {
             </div>
             <div className="flex flex-1 items-center justify-between rounded-full border border-black/15 py-[5px] pl-3 pr-1">
               <span className="text-[12px] tracking-[-0.1px] text-[#8E8E93]">iMessage</span>
-              <div className="flex h-[22px] w-[22px] items-center justify-center rounded-full bg-gradient-brand">
+              <div className="flex h-[22px] w-[22px] items-center justify-center rounded-full bg-brand">
                 <svg viewBox="0 0 24 24" className="h-3.5 w-3.5 text-primary-foreground" aria-hidden>
                   <path
                     d="M12 5v14M12 5l-5 5M12 5l5 5"

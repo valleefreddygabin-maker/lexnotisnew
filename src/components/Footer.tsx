@@ -1,83 +1,132 @@
-import { Link } from "@tanstack/react-router";
+import { Link, useRouterState } from "@tanstack/react-router";
+import { ArrowRight } from "lucide-react";
 import { Logo } from "./Logo";
 import { socials } from "@/lib/socials";
 import { legalNav } from "./LegalPage";
+import { Reveal } from "./Reveal";
+
+// Pages where a "talk to us" call-to-action would be redundant.
+const NO_CTA = ["/contact", "/connexion", "/mot-de-passe-oublie", "/reset-password"];
+
+const navigation = [
+  { to: "/", label: "Accueil" },
+  { to: "/services", label: "Services" },
+  { to: "/automatisation-workflow", label: "Automatisation" },
+  { to: "/tarifs", label: "Tarifs" },
+  { to: "/equipe", label: "Équipe" },
+  { to: "/faq", label: "FAQ" },
+  { to: "/contact", label: "Contact" },
+] as const;
 
 export function Footer() {
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const showCta = !NO_CTA.includes(pathname);
 
   return (
-    <footer className="mt-32 border-t border-black/10 bg-background/40">
-      <div className="mx-auto max-w-7xl px-6 py-12">
-        <div className="grid gap-10 md:grid-cols-4">
-          <div className="space-y-4 md:col-span-1">
-            <Logo />
-            <p className="max-w-xs text-sm text-muted-foreground">
-              L'agence qui conçoit des infrastructures intelligentes sur-mesure
-              pour libérer le potentiel des entreprises.
-            </p>
-          </div>
+    <footer className="dark px-2 pb-2 pt-24 md:px-3 md:pb-3 md:pt-32">
+      <div className="relative overflow-hidden rounded-[28px] bg-background text-foreground">
+        {/* Soft violet light from the top edge */}
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-x-0 -top-40 mx-auto h-80 max-w-4xl rounded-full bg-[oklch(0.52_0.215_289/0.28)] blur-[120px]"
+        />
 
-          <div>
-            <h4 className="mb-4 text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-              Navigation
-            </h4>
-            <ul className="space-y-2 text-sm">
-              <li><Link to="/" className="hover:text-foreground text-muted-foreground">Accueil</Link></li>
-              <li><Link to="/services" className="hover:text-foreground text-muted-foreground">Services</Link></li>
-              <li><Link to="/tarifs" className="hover:text-foreground text-muted-foreground">Tarifs</Link></li>
-              <li><Link to="/equipe" className="hover:text-foreground text-muted-foreground">Équipe</Link></li>
-              <li><Link to="/contact" className="hover:text-foreground text-muted-foreground">Contact</Link></li>
-            </ul>
-          </div>
+        <div className="container-page relative">
+          {showCta && (
+            <div className="border-b border-border py-20 md:py-28">
+              <Reveal>
+                <h2 className="type-h2 max-w-3xl">
+                  Moins de tâches répétitives.{" "}
+                  <span className="text-muted-foreground">Plus de valeur créée.</span>
+                </h2>
+              </Reveal>
+              <Reveal delay={80}>
+                <p className="type-lead mt-6 max-w-xl">
+                  Un échange de 30 minutes suffit pour identifier les leviers qui feront la
+                  différence. Offert et sans engagement.
+                </p>
+              </Reveal>
+              <Reveal delay={140}>
+                <div className="mt-10 flex flex-wrap items-center gap-3">
+                  <Link to="/contact" className="btn btn-on-night">
+                    Discuter de mon projet <ArrowRight size={16} />
+                  </Link>
+                </div>
+              </Reveal>
+            </div>
+          )}
 
-          <div>
-            <h4 className="mb-4 text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-              Contact
-            </h4>
-            <p className="text-sm text-muted-foreground">
-              Une idée, un besoin, un défi ?<br />
-              <Link to="/contact" className="text-foreground hover:text-gradient-brand">
-                Parlons-en →
-              </Link>
-            </p>
-          </div>
+          <div className="grid gap-12 py-16 md:grid-cols-12 md:gap-8">
+            <div className="md:col-span-5">
+              <Logo glow={false} />
+              <p className="mt-5 max-w-xs text-[15px] leading-relaxed text-muted-foreground">
+                L'agence sarthoise qui conçoit des infrastructures intelligentes sur-mesure pour
+                libérer le potentiel des entreprises.
+              </p>
+            </div>
 
-          <div>
-            <h4 className="mb-4 text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-              Réseaux
-            </h4>
-            <div className="flex items-center gap-3">
-              {socials.map((social) => {
-                const Icon = social.icon;
-                return (
-                  <a
-                    key={social.name}
-                    href={social.href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    aria-label={social.name}
-                    className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-black/10 bg-black/5 text-muted-foreground transition-all duration-300 hover:scale-110 hover:border-brand hover:text-brand"
-                  >
-                    <Icon className="h-5 w-5" />
-                  </a>
-                );
-              })}
+            <div className="md:col-span-3">
+              <p className="type-label mb-4">Navigation</p>
+              <ul className="grid grid-cols-2 gap-x-6 gap-y-2.5 text-[15px] md:grid-cols-1">
+                {navigation.map((item) => (
+                  <li key={item.to}>
+                    <Link
+                      to={item.to}
+                      className="text-foreground/80 transition-colors duration-200 hover:text-foreground"
+                    >
+                      {item.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            <div className="md:col-span-4">
+              <p className="type-label mb-4">Contact</p>
+              <a
+                href="mailto:contact@lexnotis.com"
+                className="link-underline text-[15px] text-foreground"
+              >
+                contact@lexnotis.com
+              </a>
+              <p className="mt-2 text-[15px] text-muted-foreground">Sarthe, France</p>
+
+              <div className="mt-6 flex items-center gap-2">
+                {socials.map((social) => {
+                  const Icon = social.icon;
+                  return (
+                    <a
+                      key={social.name}
+                      href={social.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label={social.name}
+                      className="inline-flex h-10 w-10 items-center justify-center rounded-full text-muted-foreground shadow-[inset_0_0_0_1px_var(--border)] transition-[color,background-color,transform] duration-200 ease-out hover:bg-foreground/5 hover:text-foreground active:scale-95 [&_svg]:h-[18px] [&_svg]:w-[18px]"
+                    >
+                      <Icon />
+                    </a>
+                  );
+                })}
+              </div>
             </div>
           </div>
-        </div>
 
-        <div className="mt-10 flex flex-col items-center justify-between gap-4 border-t border-black/10 pt-6 text-xs text-muted-foreground sm:flex-row">
-          <p>© {new Date().getFullYear()} LexNotis. Tous droits réservés.</p>
-          <nav className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2">
-            {legalNav.map((item) => (
-              <Link key={item.to} to={item.to} className="text-muted-foreground hover:text-foreground">
-                {item.label}
-              </Link>
-            ))}
-          </nav>
+          <div className="flex flex-col gap-4 border-t border-border py-6 text-[13px] text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
+            <p>© {new Date().getFullYear()} LexNotis. Tous droits réservés.</p>
+            <nav aria-label="Pages légales" className="flex flex-wrap gap-x-5 gap-y-2">
+              {legalNav.map((item) => (
+                <Link
+                  key={item.to}
+                  to={item.to}
+                  className="transition-colors duration-200 hover:text-foreground"
+                >
+                  {item.label}
+                </Link>
+              ))}
+            </nav>
+          </div>
         </div>
       </div>
     </footer>
   );
 }
-

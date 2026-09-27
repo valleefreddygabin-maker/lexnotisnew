@@ -9,6 +9,8 @@ import {
 } from "@tanstack/react-router";
 
 import { useEffect, type ReactNode } from "react";
+import { ArrowRight } from "lucide-react";
+import { stagger } from "@/lib/motion";
 
 import { Toaster } from "@/components/ui/sonner";
 import appCss from "../styles.css?url";
@@ -17,76 +19,24 @@ import { Header } from "../components/Header";
 import { Footer } from "../components/Footer";
 import { CookieConsentProvider } from "../components/CookieConsent";
 import { ChatWidget } from "../components/ChatWidget";
-import bgCathedrale from "../assets/cathedrale-mans.jpg.asset.json";
-import bgVieuxMans from "../assets/vieux-mans.jpg.asset.json";
-import bgRemparts from "../assets/remparts-mans.jpg.asset.json";
-
-function LeMansBackdrop() {
-  return (
-    <div aria-hidden className="pointer-events-none fixed inset-0 -z-10 overflow-hidden">
-      {/* White base keeps the site background clean */}
-      <div className="absolute inset-0 bg-background" />
-
-      {/* Watermark photos of Le Mans landmarks — visible but not competing with content */}
-      <div className="absolute top-0 left-0 w-[32vw] min-w-[200px] max-w-[460px] max-h-[36vh] overflow-hidden mask-fade-edges">
-        <img
-          src={bgCathedrale.url}
-          alt=""
-          loading="lazy"
-          className="h-full w-full object-cover opacity-80 saturate-90"
-        />
-        <div className="pointer-events-none absolute inset-0 bg-vignette-fade" />
-        <div className="pointer-events-none absolute inset-y-0 right-0 w-[50%] bg-gradient-to-l from-background via-background/40 to-transparent" />
-        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-[35%] bg-gradient-to-t from-background via-background/30 to-transparent" />
-      </div>
-
-      <div className="absolute top-0 right-0 w-[32vw] min-w-[200px] max-w-[460px] max-h-[36vh] overflow-hidden mask-fade-edges">
-        <img
-          src={bgVieuxMans.url}
-          alt=""
-          loading="lazy"
-          className="h-full w-full object-cover opacity-80 saturate-90"
-        />
-        <div className="pointer-events-none absolute inset-0 bg-vignette-fade" />
-        <div className="pointer-events-none absolute inset-y-0 left-0 w-[50%] bg-gradient-to-r from-background via-background/40 to-transparent" />
-        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-[35%] bg-gradient-to-t from-background via-background/30 to-transparent" />
-      </div>
-
-      <div className="absolute bottom-0 right-0 w-[32vw] min-w-[200px] max-w-[460px] max-h-[36vh] overflow-hidden mask-fade-edges">
-        <img
-          src={bgRemparts.url}
-          alt=""
-          loading="lazy"
-          className="h-full w-full object-cover opacity-80 saturate-90"
-        />
-        <div className="pointer-events-none absolute inset-0 bg-vignette-fade" />
-        <div className="pointer-events-none absolute inset-y-0 left-0 w-[50%] bg-gradient-to-r from-background via-background/40 to-transparent" />
-        <div className="pointer-events-none absolute inset-x-0 top-0 h-[35%] bg-gradient-to-b from-background via-background/30 to-transparent" />
-      </div>
-
-      {/* Light white veil to keep text legible over the watermark photos */}
-      <div className="absolute inset-0 bg-background/20" />
-    </div>
-  );
-}
 
 function NotFoundComponent() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background px-4">
-      <div className="max-w-md text-center">
-        <h1 className="text-7xl font-bold text-gradient-brand">404</h1>
-        <h2 className="mt-4 text-xl font-semibold text-foreground">Page introuvable</h2>
-        <p className="mt-2 text-sm text-muted-foreground">
-          Cette page n'existe pas ou a été déplacée.
-        </p>
-        <div className="mt-6">
-          <Link
-            to="/"
-            className="inline-flex items-center justify-center rounded-full bg-gradient-brand px-5 py-2.5 text-sm font-medium text-primary-foreground shadow-glow transition hover:scale-105"
-          >
-            Retour à l'accueil
-          </Link>
-        </div>
+    <div className="container-page flex min-h-[70dvh] flex-col justify-center py-24">
+      <p className="type-label enter">Erreur 404</p>
+      <h1 className="type-display enter mt-4 max-w-2xl" style={stagger(1)}>
+        Cette page n'existe pas.
+      </h1>
+      <p className="type-lead enter mt-5 max-w-md" style={stagger(2)}>
+        Elle a peut-être été déplacée. Revenez à l'accueil, on vous remet sur la bonne voie.
+      </p>
+      <div className="enter mt-8 flex flex-wrap gap-3" style={stagger(3)}>
+        <Link to="/" className="btn btn-primary">
+          Retour à l'accueil <ArrowRight size={16} />
+        </Link>
+        <Link to="/contact" className="btn btn-ghost">
+          Nous contacter
+        </Link>
       </div>
     </div>
   );
@@ -100,31 +50,23 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
   }, [error]);
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background px-4">
-      <div className="max-w-md text-center">
-        <h1 className="text-xl font-semibold tracking-tight text-foreground">
-          Erreur de chargement
-        </h1>
-        <p className="mt-2 text-sm text-muted-foreground">
-          Une erreur est survenue. Essayez de recharger la page.
-        </p>
-        <div className="mt-6 flex flex-wrap justify-center gap-2">
-          <button
-            onClick={() => {
-              router.invalidate();
-              reset();
-            }}
-            className="inline-flex items-center justify-center rounded-full bg-gradient-brand px-5 py-2.5 text-sm font-medium text-primary-foreground shadow-glow"
-          >
-            Réessayer
-          </button>
-          <a
-            href="/"
-            className="inline-flex items-center justify-center rounded-full border border-black/15 bg-black/5 px-5 py-2.5 text-sm font-medium text-foreground"
-          >
-            Accueil
-          </a>
-        </div>
+    <div className="container-page flex min-h-[70dvh] flex-col justify-center py-24">
+      <p className="type-label">Erreur de chargement</p>
+      <h1 className="type-h2 mt-4 max-w-xl">Une erreur est survenue.</h1>
+      <p className="type-lead mt-4 max-w-md">Essayez de recharger la page.</p>
+      <div className="mt-8 flex flex-wrap gap-3">
+        <button
+          onClick={() => {
+            router.invalidate();
+            reset();
+          }}
+          className="btn btn-primary"
+        >
+          Réessayer
+        </button>
+        <a href="/" className="btn btn-ghost">
+          Accueil
+        </a>
       </div>
     </div>
   );
@@ -135,7 +77,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { name: "theme-color", content: "#ffffff" },
+      { name: "theme-color", content: "#fafafc" },
       { name: "google-site-verification", content: "ceMrEmGVjNt0mYByBLIUH_0TK0IlhzkOTcYz_NtFtYk" },
       { property: "og:site_name", content: "LexNotis" },
       { property: "og:type", content: "website" },
@@ -214,9 +156,8 @@ function RootComponent() {
     <QueryClientProvider client={queryClient}>
       <CookieConsentProvider>
         <Toaster />
-        <LeMansBackdrop />
         <Header />
-        <main className="pt-20">
+        <main className="pt-16">
           <Outlet />
         </main>
         <Footer />

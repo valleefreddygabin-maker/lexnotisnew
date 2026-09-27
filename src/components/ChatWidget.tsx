@@ -1,23 +1,23 @@
 import { useEffect, useRef, useState } from "react";
-import { MessageCircle, Send, X } from "lucide-react";
+import { ArrowUp, CalendarDays, FileText, Mail, Sparkles, X } from "lucide-react";
 import { useServerFn } from "@tanstack/react-start";
 import { sendChatMessage } from "@/lib/chat.functions";
+import { cn } from "@/lib/utils";
 
 const AVATAR_SRC = "/images/chat-avatar.jpg";
 
-
 const QUICK_ACTIONS = [
-  "📝 Demander un devis",
-  "✉️ Nous contacter",
-  "🚀 Découvrir vos services",
-  "📅 Prendre rendez-vous",
+  { icon: FileText, label: "Demander un devis" },
+  { icon: Mail, label: "Nous contacter" },
+  { icon: Sparkles, label: "Découvrir vos services" },
+  { icon: CalendarDays, label: "Prendre rendez-vous" },
 ] as const;
 
 type Msg = { from: "bot" | "user"; text: string };
 
 const INITIAL_MESSAGE: Msg = {
   from: "bot",
-  text: "Bonjour ! Bienvenue chez Lexnotis. Comment puis-je vous aider aujourd'hui ?",
+  text: "Bonjour ! Bienvenue chez LexNotis. Comment puis-je vous aider aujourd'hui ?",
 };
 
 export function ChatWidget() {
@@ -27,12 +27,24 @@ export function ChatWidget() {
   const [typing, setTyping] = useState(false);
   const [showQuickActions, setShowQuickActions] = useState(true);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
   const askBot = useServerFn(sendChatMessage);
 
   useEffect(() => {
     const el = scrollRef.current;
     if (el) el.scrollTop = el.scrollHeight;
   }, [messages, typing, open]);
+
+  useEffect(() => {
+    if (!open) return;
+    const t = setTimeout(() => inputRef.current?.focus({ preventScroll: true }), 180);
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && setOpen(false);
+    window.addEventListener("keydown", onKey);
+    return () => {
+      clearTimeout(t);
+      window.removeEventListener("keydown", onKey);
+    };
+  }, [open]);
 
   async function send(raw: string) {
     const text = raw.trim();
@@ -49,97 +61,95 @@ export function ChatWidget() {
     } catch {
       setMessages((prev) => [
         ...prev,
-        {
-          from: "bot",
-          text: "Une erreur est survenue. Merci de réessayer dans un instant.",
-        },
+        { from: "bot", text: "Une erreur est survenue. Merci de réessayer dans un instant." },
       ]);
     } finally {
       setTyping(false);
     }
   }
 
-
   return (
-    <div
-      className="fixed bottom-[16px] right-[16px] z-[9999] flex flex-col items-end"
-      style={{ fontFamily: "'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif" }}
-    >
-      {/* Bouton d'ouverture */}
+    <div className="fixed bottom-4 right-4 z-[60] flex flex-col items-end md:bottom-5 md:right-5">
+      {/* Launcher */}
       <button
         type="button"
         onClick={() => setOpen(true)}
-        aria-label="Ouvrir le chat"
-        className={`flex items-center gap-2 rounded-full bg-gradient-brand px-[clamp(12px,1vw,18px)] py-[clamp(8px,0.7vw,12px)] text-[clamp(12px,0.95vw,14px)] font-semibold text-white shadow-glow transition-all duration-300 [transition-timing-function:cubic-bezier(0.25,0.8,0.25,1)] hover:-translate-y-[2px] hover:shadow-[0_20px_50px_-12px_oklch(0.62_0.22_290/0.7)] ${
-          open ? "pointer-events-none invisible opacity-0" : "visible opacity-100"
-        }`}
+        aria-label="Ouvrir le chat avec Valentin"
+        aria-expanded={open}
+        className={cn(
+          "group flex items-center gap-2.5 rounded-full bg-foreground p-1.5 text-background shadow-[0_0_0_1px_oklch(1_0_0/0.08),var(--shadow-float)] transition-[transform,opacity] duration-200 ease-out active:scale-[0.97] md:pr-4",
+          open ? "pointer-events-none scale-95 opacity-0" : "scale-100 opacity-100",
+        )}
       >
-        <MessageCircle className="h-[clamp(14px,1.1vw,18px)] w-[clamp(14px,1.1vw,18px)] animate-[pulse-icon_2s_infinite]" />
-        Discutez avec Valentin
+        <span className="relative block h-9 w-9 shrink-0">
+          <img
+            src={AVATAR_SRC}
+            alt=""
+            className="h-full w-full rounded-full object-cover"
+            style={{ objectPosition: "center 30%" }}
+          />
+          <span className="absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full bg-emerald-500 ring-2 ring-foreground" />
+        </span>
+        <span className="hidden text-[14px] font-medium md:inline">Discutez avec Valentin</span>
       </button>
 
-      {/* Fenêtre de chat */}
+      {/* Window: scales from the launcher's corner (origin-aware) */}
       <div
-        className={`absolute bottom-0 right-0 flex h-[clamp(400px,58vh,620px)] w-[clamp(300px,24vw,440px)] max-h-[calc(100vh-32px)] max-w-[calc(100vw-32px)] flex-col overflow-hidden rounded-[20px] border border-[#edf2f7] bg-[#fdfdfd] shadow-[0_12px_30px_rgba(0,0,0,0.13)] transition-all duration-[400ms] [transition-timing-function:cubic-bezier(0.25,1,0.5,1)] ${
+        role="dialog"
+        aria-label="Chat avec Valentin, conseiller LexNotis"
+        aria-hidden={!open}
+        className={cn(
+          "absolute bottom-0 right-0 flex h-[min(600px,calc(100dvh-2rem))] w-[min(392px,calc(100vw-2rem))] origin-bottom-right flex-col overflow-hidden rounded-[24px] bg-card shadow-[0_0_0_1px_var(--border),var(--shadow-float)]",
           open
-            ? "visible translate-y-0 scale-100 opacity-100"
-            : "invisible translate-y-4 scale-95 opacity-0"
-        }`}
+            ? "visible scale-100 opacity-100 transition-[transform,opacity] duration-[240ms] ease-out"
+            : "invisible scale-[0.96] opacity-0 transition-[transform,opacity,visibility] duration-150 ease-out",
+        )}
       >
         {/* Header */}
-        <div className="flex items-center justify-between bg-gradient-brand px-[clamp(12px,1.1vw,18px)] py-[clamp(10px,0.9vw,14px)] text-white">
-          <div className="flex items-center gap-2.5">
-            <div className="relative inline-block h-[clamp(30px,2.4vw,40px)] w-[clamp(30px,2.4vw,40px)]">
+        <div className="flex items-center justify-between border-b border-border px-4 py-3">
+          <div className="flex items-center gap-3">
+            <div className="relative h-10 w-10">
               <img
                 src={AVATAR_SRC}
                 alt="Valentin, conseiller LexNotis"
-                className="h-full w-full rounded-full bg-white object-cover"
+                className="h-full w-full rounded-full object-cover"
                 style={{ objectPosition: "center 30%" }}
               />
-              <span className="absolute bottom-[1px] right-0 h-[clamp(7px,0.6vw,10px)] w-[clamp(7px,0.6vw,10px)] rounded-full border border-white/60 bg-[#48bb78]" />
+              <span className="absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full bg-emerald-500 ring-2 ring-card" />
             </div>
-            <div className="flex flex-col">
-              <p className="m-0 text-[clamp(14px,1.25vw,17px)] font-bold tracking-[0.2px]">Valentin</p>
-              <p className="mt-0 text-[clamp(10px,0.85vw,12px)] font-normal text-[#f0e6ff]">
-                Conseiller en ligne
-              </p>
+            <div>
+              <p className="text-[15px] font-semibold leading-tight tracking-[-0.01em]">Valentin</p>
+              <p className="text-[13px] text-muted-foreground">Conseiller en ligne</p>
             </div>
           </div>
           <button
             type="button"
             onClick={() => setOpen(false)}
             aria-label="Fermer le chat"
-            className="flex h-[clamp(26px,2vw,30px)] w-[clamp(26px,2vw,30px)] items-center justify-center rounded-full border-none bg-white/10 text-white transition-colors duration-200 hover:bg-white/20"
+            className="flex h-9 w-9 items-center justify-center rounded-full text-muted-foreground transition-[background-color,color,transform] duration-150 ease-out hover:bg-secondary hover:text-foreground active:scale-95"
           >
-            <X className="h-[clamp(12px,1vw,16px)] w-[clamp(12px,1vw,16px)]" />
+            <X size={18} />
           </button>
         </div>
 
         {/* Messages */}
         <div
           ref={scrollRef}
-          className="flex flex-1 flex-col gap-3 overflow-y-auto bg-[#f8fafc] px-[clamp(10px,0.95vw,14px)] py-[clamp(12px,1.05vw,16px)] [&::-webkit-scrollbar-thumb]:rounded-[8px] [&::-webkit-scrollbar-thumb]:bg-[#cbd5e0] [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar]:w-[5px]"
+          aria-live="polite"
+          className="flex flex-1 flex-col gap-2.5 overflow-y-auto overscroll-contain bg-background px-4 py-4"
         >
           {messages.map((m, i) =>
             m.from === "bot" ? (
               <div
                 key={i}
-                className="flex max-w-[90%] animate-[message-pop_0.4s_cubic-bezier(0.25,1,0.5,1)_forwards] items-end gap-2 self-start"
+                className="max-w-[86%] origin-bottom-left animate-[message-pop_280ms_var(--ease-out)_both] self-start rounded-[18px] rounded-bl-[6px] bg-card px-3.5 py-2.5 text-[14px] leading-[1.45] shadow-[0_0_0_1px_var(--border)] [overflow-wrap:anywhere]"
               >
-                <img
-                  src={AVATAR_SRC}
-                  alt=""
-                  className="h-[clamp(16px,1.4vw,22px)] w-[clamp(16px,1.4vw,22px)] shrink-0 rounded-full border border-[#e2e8f0] object-cover"
-                  style={{ objectPosition: "center 30%" }}
-                />
-                <div className="w-full rounded-[16px] rounded-bl-[4px] border border-[#edf2f7] bg-white px-[clamp(10px,0.9vw,14px)] py-[clamp(8px,0.7vw,12px)] text-[clamp(12px,1vw,14px)] leading-[1.45] text-[#2d3748] shadow-[0_1px_4px_rgba(0,0,0,0.04)] [word-wrap:break-word]">
-                  {m.text}
-                </div>
+                {m.text}
               </div>
             ) : (
               <div
                 key={i}
-                className="max-w-[85%] animate-[message-pop_0.4s_cubic-bezier(0.25,1,0.5,1)_forwards] self-end rounded-[16px] rounded-br-[4px] bg-[#8c40ff] px-[clamp(10px,0.9vw,14px)] py-[clamp(8px,0.7vw,12px)] text-[clamp(12px,1vw,14px)] leading-[1.45] text-white shadow-[0_1px_4px_rgba(0,0,0,0.04)] [word-wrap:break-word]"
+                className="max-w-[86%] origin-bottom-right animate-[message-pop_280ms_var(--ease-out)_both] self-end rounded-[18px] rounded-br-[6px] bg-brand px-3.5 py-2.5 text-[14px] leading-[1.45] text-white [overflow-wrap:anywhere]"
               >
                 {m.text}
               </div>
@@ -147,68 +157,63 @@ export function ChatWidget() {
           )}
 
           {showQuickActions && (
-            <div className="ml-[clamp(22px,1.9vw,28px)] mt-1 flex animate-[message-pop_0.6s_cubic-bezier(0.25,1,0.5,1)_forwards] flex-col items-start gap-[clamp(6px,0.55vw,10px)]">
-              {QUICK_ACTIONS.map((action) => (
+            <div className="mt-1 flex flex-wrap gap-2">
+              {QUICK_ACTIONS.map(({ icon: Icon, label }) => (
                 <button
-                  key={action}
+                  key={label}
                   type="button"
-                  onClick={() => send(action)}
-                  className="flex items-center gap-1.5 rounded-[16px] border border-[#8c40ff] bg-white px-[clamp(10px,0.9vw,14px)] py-[clamp(6px,0.55vw,10px)] text-[clamp(11px,0.9vw,13px)] font-semibold text-[#8c40ff] transition-all duration-200 hover:-translate-y-[1px] hover:bg-[#8c40ff] hover:text-white"
+                  onClick={() => send(label)}
+                  className="inline-flex items-center gap-1.5 rounded-full bg-card px-3 py-2 text-[13px] font-medium text-foreground shadow-[0_0_0_1px_var(--border)] transition-[background-color,transform] duration-150 ease-out hover:bg-brand-soft active:scale-[0.97]"
                 >
-                  {action}
+                  <Icon size={14} className="text-brand" />
+                  {label}
                 </button>
               ))}
             </div>
           )}
 
           {typing && (
-            <div className="flex animate-[message-pop_0.3s_forwards] items-end gap-2 self-start">
-              <img
-                src={AVATAR_SRC}
-                alt=""
-                className="h-[clamp(16px,1.4vw,22px)] w-[clamp(16px,1.4vw,22px)] shrink-0 rounded-full border border-[#e2e8f0] object-cover"
-                style={{ objectPosition: "center 30%" }}
-              />
-              <div className="flex w-fit items-center gap-1 rounded-[16px] rounded-bl-[4px] border border-[#edf2f7] bg-white px-[clamp(10px,0.9vw,14px)] py-[clamp(8px,0.7vw,12px)]">
-                {[-0.32, -0.16, 0].map((delay) => (
-                  <span
-                    key={delay}
-                    className="block h-[clamp(4px,0.4vw,6px)] w-[clamp(4px,0.4vw,6px)] animate-[typing-bounce_1.4s_infinite_ease-in-out_both] rounded-full bg-[#a0aec0]"
-                    style={{ animationDelay: `${delay}s` }}
-                  />
-                ))}
-              </div>
+            <div className="flex w-fit origin-bottom-left animate-[message-pop_200ms_var(--ease-out)_both] items-center gap-1 self-start rounded-[18px] rounded-bl-[6px] bg-card px-3.5 py-3 shadow-[0_0_0_1px_var(--border)]">
+              {[0, 160, 320].map((delay) => (
+                <span
+                  key={delay}
+                  className="block h-1.5 w-1.5 animate-[typing-bounce_1.2s_ease-in-out_infinite] rounded-full bg-muted-foreground"
+                  style={{ animationDelay: `${delay}ms` }}
+                />
+              ))}
             </div>
           )}
         </div>
 
-        {/* Footer */}
-        <div className="flex items-center border-t border-[#f0f2f5] bg-white px-[clamp(10px,0.95vw,14px)] py-[clamp(10px,0.9vw,14px)]">
-          <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              send(input);
-            }}
-            className="relative flex w-full items-center"
+        {/* Composer */}
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            send(input);
+          }}
+          className="flex items-center gap-2 border-t border-border bg-card p-3"
+        >
+          <label htmlFor="chat-input" className="sr-only">
+            Votre message
+          </label>
+          <input
+            id="chat-input"
+            ref={inputRef}
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            disabled={typing}
+            placeholder="Écrivez votre message…"
+            className="h-11 flex-1 rounded-full bg-secondary px-4 text-[16px] outline-none transition-shadow duration-150 placeholder:text-muted-foreground focus:shadow-[0_0_0_2px_var(--ring)] disabled:opacity-60 md:text-[14px]"
+          />
+          <button
+            type="submit"
+            aria-label="Envoyer"
+            disabled={!input.trim() || typing}
+            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-brand text-white transition-[opacity,transform] duration-150 ease-out active:scale-95 disabled:opacity-30"
           >
-            <input
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              disabled={typing}
-              placeholder="Écrivez votre message..."
-              className="flex-1 rounded-[20px] border border-[#e2e8f0] bg-[#f8fafc] py-[clamp(8px,0.7vw,12px)] pl-4 pr-[clamp(36px,3vw,46px)] text-[clamp(12px,1vw,14px)] outline-none transition-all duration-200 focus:border-[#8c40ff] focus:bg-white focus:shadow-[0_0_0_3px_rgba(140,64,255,0.15)] disabled:cursor-not-allowed disabled:bg-[#f1f5f9]"
-            />
-            <button
-              type="submit"
-              aria-label="Envoyer"
-              className={`absolute right-2 flex h-[clamp(26px,2vw,32px)] w-[clamp(26px,2vw,32px)] items-center justify-center rounded-full bg-[#8c40ff] text-white transition-colors duration-200 hover:bg-[#712bcc] ${
-                input.trim() ? "pointer-events-auto opacity-100" : "pointer-events-none opacity-0"
-              }`}
-            >
-              <Send className="h-[clamp(12px,1vw,16px)] w-[clamp(12px,1vw,16px)]" />
-            </button>
-          </form>
-        </div>
+            <ArrowUp size={18} />
+          </button>
+        </form>
       </div>
     </div>
   );

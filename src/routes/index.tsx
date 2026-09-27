@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import {
   Brain,
   Zap,
@@ -7,31 +7,29 @@ import {
   Clock,
   Sparkles,
   ArrowRight,
-  Quote,
   MapPin,
-  Timer,
-  Rocket,
-  CalendarCheck,
-  Gauge,
   CircleCheck,
   HeartHandshake,
   Globe,
-
-
+  Check,
+  Bot,
+  Workflow,
+  Receipt,
 } from "lucide-react";
 import { useEffect } from "react";
 import { toast } from "sonner";
 import { GradientLink } from "@/components/GradientButton";
-import { GridPillars } from "@/components/GridPillars";
+import { OfferBento } from "@/components/OfferBento";
 import { AnimatedCounter } from "@/components/AnimatedCounter";
 import { Reveal } from "@/components/Reveal";
 import { AiMarquee } from "@/components/AiMarquee";
-
 import { IntegrationsSection } from "@/components/IntegrationsSection";
 import { PhoneChatMockup } from "@/components/PhoneChatMockup";
 import { DashboardPreview } from "@/components/DashboardPreview";
-
-
+import { stagger } from "@/lib/motion";
+import vieuxMans from "@/assets/vieux-mans.jpg.asset.json";
+import cathedrale from "@/assets/cathedrale-mans.jpg.asset.json";
+import remparts from "@/assets/remparts-mans.jpg.asset.json";
 
 
 export const Route = createFileRoute("/")({
@@ -82,7 +80,7 @@ const pillars = [
     icon: Brain,
     title: "Assistants IA sur-mesure",
     description:
-      "Des agents intelligents conçus pour vos processus, vos données et votre équipe — pas des solutions génériques.",
+      "Des agents intelligents conçus pour vos processus, vos données et votre équipe. Pas des solutions génériques.",
     benefit: "Adapté à votre métier",
   },
   {
@@ -116,12 +114,11 @@ const pillars = [
   {
     icon: HeartHandshake,
     title: "Accompagnement sans stress",
-    description: "On vous accompagne pas à pas. Zéro peur de l'IA, un projet fluide et des équipes rassurées.",
+    description:
+      "On vous accompagne pas à pas. Zéro peur de l'IA, un projet fluide et des équipes rassurées.",
     benefit: "Plus de peur de l'IA",
   },
 ];
-
-
 
 const benefits = [
   {
@@ -141,12 +138,23 @@ const benefits = [
   },
 ];
 
+const stats = [
+  { value: 12, suffix: "h", label: "gagnées par semaine", sub: "sur les tâches répétitives" },
+  { value: 68, suffix: "%", label: "de productivité en plus", sub: "sur les processus automatisés" },
+  { value: 3, suffix: "sem.", label: "de déploiement moyen", sub: "du kick-off au go-live" },
+  { value: 4, suffix: "×", label: "de vitesse d'exécution", sub: "sur vos workflows critiques" },
+];
+
+const dashboardPoints = [
+  { icon: Clock, text: "Suivi du temps gagné et des tâches automatisées" },
+  { icon: Bot, text: "Gestion de vos agents et de vos automatisations" },
+  { icon: Receipt, text: "Abonnement, factures et accompagnement dédié" },
+];
 
 function Home() {
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-    const flagged =
-      window.sessionStorage.getItem("lexnotis_logout_success") === "true";
+    const flagged = window.sessionStorage.getItem("lexnotis_logout_success") === "true";
     if (params.get("deconnexion") === "succes" || flagged) {
       window.sessionStorage.removeItem("lexnotis_logout_success");
       toast.success("Déconnexion réussie", {
@@ -161,347 +169,279 @@ function Home() {
     }
   }, []);
 
-
   return (
-    <div className="overflow-hidden">
-      {/* HERO */}
-      <section className="relative px-6 pt-4 pb-10 md:pt-6 md:pb-14">
-        <div className="mx-auto max-w-4xl text-center">
-          <div className="animate-fade-in mb-3 inline-flex items-center gap-2 rounded-full bg-[oklch(0.95_0.05_290)] px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-[oklch(0.45_0.22_290)]">
-            <MapPin size={11} />
-            Agence IA sur-mesure — Sarthe
+    <div className="overflow-x-clip">
+      <Hero />
+      <AiMarquee />
+
+      {/* OFFER */}
+      <section className="py-24 md:py-32">
+        <div className="container-page">
+          <Reveal>
+            <h2 className="type-h2 max-w-2xl">Une infrastructure complète, pensée pour vous.</h2>
+            <p className="type-lead mt-5 max-w-xl">
+              Chaque entreprise est unique. Nos solutions le sont aussi.
+            </p>
+          </Reveal>
+          <div className="mt-14">
+            <OfferBento offers={pillars} />
+          </div>
+        </div>
+      </section>
+
+      {/* BENEFITS */}
+      <section className="py-24 md:py-32">
+        <div className="container-page grid gap-14 lg:grid-cols-12 lg:gap-8">
+          <div className="lg:col-span-5">
+            <Reveal className="lg:sticky lg:top-32">
+              <h2 className="type-h2">
+                <span className="block">Gagnez du temps.</span>
+                <span className="block">Réduisez le stress.</span>
+                <span className="block text-brand">Accélérez.</span>
+              </h2>
+              <p className="type-lead mt-6 max-w-sm">
+                Ce que nos clients retrouvent quand l'IA prend en charge le travail répétitif.
+              </p>
+            </Reveal>
+          </div>
+          <ol className="lg:col-span-6 lg:col-start-7">
+            {benefits.map((b, i) => (
+              <Reveal
+                as="li"
+                key={b.title}
+                delay={i * 60}
+                className="border-t border-border py-10 first:border-t-0 first:pt-0 last:pb-0 lg:py-12"
+              >
+                <b.icon aria-hidden strokeWidth={1.75} className="h-6 w-6 text-brand" />
+                <h3 className="type-h3 mt-5">{b.title}</h3>
+                <p className="mt-3 max-w-lg text-[17px] leading-relaxed text-muted-foreground">
+                  {b.text}
+                </p>
+              </Reveal>
+            ))}
+          </ol>
+        </div>
+      </section>
+
+      {/* NUMBERS */}
+      <section className="py-24 md:py-32">
+        <div className="container-page">
+          <Reveal>
+            <h2 className="type-h2 max-w-3xl">
+              Chaque heure gagnée est une heure investie ailleurs.
+            </h2>
+          </Reveal>
+
+          <div className="mt-14 grid grid-cols-2 gap-x-6 gap-y-12 border-y border-border py-12 lg:grid-cols-4 lg:gap-0">
+            {stats.map((s, i) => (
+              <Reveal
+                key={s.label}
+                delay={i * 70}
+                className="lg:border-l lg:border-border lg:px-8 lg:first:border-l-0 lg:first:pl-0"
+              >
+                <p className="text-[52px] font-semibold leading-none tracking-[-0.055em] md:text-[72px]">
+                  <AnimatedCounter to={s.value} />
+                  <span className="ml-1 text-[0.5em] tracking-[-0.03em] text-muted-foreground">
+                    {s.suffix}
+                  </span>
+                </p>
+                <p className="mt-5 text-[15px] font-medium">{s.label}</p>
+                <p className="mt-1 text-[14px] text-muted-foreground">{s.sub}</p>
+              </Reveal>
+            ))}
           </div>
 
-          <h1 className="animate-fade-up text-3xl font-black leading-[0.95] tracking-tight text-foreground sm:text-4xl md:text-5xl lg:text-6xl">
-            L'intelligence
-            <br />
-            <span className="text-gradient-brand animate-gradient">au service</span>
-            <br />
-            de votre entreprise.
-          </h1>
+          <Reveal delay={120}>
+            <div className="mt-8 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+              <p className="max-w-xl text-[14px] text-muted-foreground">
+                Résultats mesurés chez nos clients après déploiement de nos infrastructures IA
+                sur-mesure.
+              </p>
+              <Link
+                to="/contact"
+                className="group inline-flex items-center gap-1.5 text-[15px] font-medium text-brand"
+              >
+                Estimer mon gain de temps
+                <ArrowRight
+                  size={16}
+                  className="transition-transform duration-200 ease-out group-hover:translate-x-[3px]"
+                />
+              </Link>
+            </div>
+          </Reveal>
+        </div>
+      </section>
 
-          <p
-            className="animate-fade-up mx-auto mt-4 max-w-2xl text-sm text-muted-foreground md:text-base"
-            style={{ animationDelay: "150ms" }}
-          >
-            Notre équipe vous accompagne dans la création de systèmes IA sur-mesure pour{" "}
-            <span className="font-semibold text-foreground">automatiser vos tâches</span>,{" "}
-            <span className="font-semibold text-foreground">libérer votre temps</span> et faire gagner du temps à votre entreprise.
+      {/* CLIENT SPACE */}
+      <section className="py-24 md:py-32">
+        <div className="container-page">
+          <Reveal>
+            <p className="type-label">Votre espace client</p>
+            <h2 className="type-h2 mt-4 max-w-2xl">Un tableau de bord clair pour tout piloter.</h2>
+            <p className="type-lead mt-5 max-w-xl">
+              Suivez vos agents IA, vos automatisations, votre site web et vos factures depuis un
+              seul endroit. Vous voyez exactement le temps gagné, semaine après semaine.
+            </p>
+          </Reveal>
+
+          <Reveal delay={100} className="mt-14">
+            <div className="relative overflow-hidden rounded-[32px] bg-brand-soft px-4 pt-6 sm:px-8 sm:pt-10 md:px-14 md:pt-14">
+              <div
+                aria-hidden
+                className="pointer-events-none absolute -left-32 -top-32 h-96 w-96 rounded-full bg-white/70 blur-3xl"
+              />
+              <div className="relative mx-auto max-w-5xl translate-y-2">
+                <DashboardPreview />
+              </div>
+            </div>
+          </Reveal>
+
+          <ul className="mt-10 grid gap-6 md:grid-cols-3 md:gap-8">
+            {dashboardPoints.map((p, i) => (
+              <Reveal as="li" key={p.text} delay={i * 60} className="flex items-start gap-3">
+                <p.icon aria-hidden strokeWidth={1.75} className="mt-0.5 h-5 w-5 shrink-0 text-brand" />
+                <span className="text-[15px] leading-relaxed">{p.text}</span>
+              </Reveal>
+            ))}
+          </ul>
+        </div>
+      </section>
+
+      {/* LOCAL */}
+      <section className="py-24 md:py-32">
+        <div className="container-page grid items-center gap-14 lg:grid-cols-12 lg:gap-8">
+          <div className="lg:col-span-5">
+            <Reveal>
+              <h2 className="type-h2">Une agence de proximité, en Sarthe.</h2>
+              <p className="type-lead mt-6 max-w-md">
+                Un contact direct, des réponses rapides, une vraie relation. Pour nos clients de la
+                Sarthe comme de toute la France.
+              </p>
+            </Reveal>
+            <Reveal delay={80}>
+              <ul className="mt-10 flex flex-wrap gap-x-6 gap-y-3">
+                {["Réponse sous 24h", "Premier échange offert", "Sans engagement"].map((t) => (
+                  <li key={t} className="flex items-center gap-2 whitespace-nowrap text-[15px] font-medium">
+                    <Check size={16} strokeWidth={2} className="text-brand" /> {t}
+                  </li>
+                ))}
+              </ul>
+            </Reveal>
+          </div>
+
+          <div className="grid grid-cols-12 gap-3 md:gap-4 lg:col-span-7">
+            <Reveal as="section" className="col-span-7">
+              <figure>
+                <div className="overflow-hidden rounded-3xl">
+                  <img
+                    src={remparts.url}
+                    alt="Les remparts gallo-romains du Mans"
+                    loading="lazy"
+                    className="aspect-[4/5] w-full object-cover object-[70%_50%]"
+                  />
+                </div>
+                <figcaption className="mt-3 text-[13px] text-muted-foreground">
+                  L'enceinte gallo-romaine du Mans
+                </figcaption>
+              </figure>
+            </Reveal>
+            <Reveal as="section" delay={100} className="col-span-5 mt-16 md:mt-24">
+              <figure>
+                <div className="overflow-hidden rounded-3xl">
+                  <img
+                    src={cathedrale.url}
+                    alt="La cathédrale Saint-Julien du Mans au soleil couchant"
+                    loading="lazy"
+                    className="aspect-[3/4] w-full object-cover object-[40%_50%]"
+                  />
+                </div>
+                <figcaption className="mt-3 text-[13px] text-muted-foreground">
+                  La cathédrale Saint-Julien
+                </figcaption>
+              </figure>
+            </Reveal>
+          </div>
+        </div>
+      </section>
+
+      <IntegrationsSection />
+    </div>
+  );
+}
+
+function Hero() {
+  return (
+    <section className="relative">
+      <div
+        aria-hidden
+        className="pointer-events-none absolute right-0 top-0 -z-10 h-[720px] w-[min(900px,70vw)] bg-[radial-gradient(closest-side,oklch(0.52_0.215_289/0.10),transparent)]"
+      />
+      <div className="container-page grid items-center gap-14 pb-16 pt-10 md:pt-14 lg:min-h-[calc(100dvh-4rem)] lg:grid-cols-12 lg:gap-6 lg:pb-20 lg:pt-8">
+        <div className="lg:col-span-6">
+          <p className="enter inline-flex items-center gap-1.5 rounded-full bg-card py-1.5 pl-2.5 pr-3.5 text-[13px] text-muted-foreground shadow-[0_0_0_1px_var(--border)]">
+            <MapPin size={13} strokeWidth={2} className="text-brand" />
+            Agence IA sur-mesure, en Sarthe
           </p>
-
-          <div
-            className="animate-fade-up mt-5 flex flex-wrap items-center justify-center gap-4"
-            style={{ animationDelay: "300ms" }}
-          >
+          <h1 className="type-display enter mt-7 max-w-[11ch]" style={stagger(1)}>
+            L’intelligence <span className="text-brand">au service</span> de votre entreprise.
+          </h1>
+          <p className="type-lead enter mt-7 max-w-[30rem]" style={stagger(2)}>
+            Des systèmes IA sur-mesure pour automatiser vos tâches répétitives et redonner du
+            temps à votre équipe.
+          </p>
+          <div className="enter mt-10 flex flex-wrap gap-3" style={stagger(3)}>
             <GradientLink to="/contact">
               Discuter de mon projet <ArrowRight size={16} />
+            </GradientLink>
+            <GradientLink to="/services" variant="ghost">
+              Voir nos services
             </GradientLink>
           </div>
         </div>
 
-
-
-        {/* PILLARS strip */}
-        <div
-          className="animate-fade-up mx-auto mt-14 grid max-w-6xl grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-6"
-
-          style={{ animationDelay: "600ms" }}
-        >
-          {pillars.map((p) => (
-            <div
-              key={p.title}
-              className="flex flex-col items-center gap-2 rounded-xl border border-black/5 bg-secondary px-3 py-4 text-center backdrop-blur-sm"
-            >
-              <p.icon className="h-5 w-5 text-gradient-brand" style={{ color: "oklch(0.55 0.24 295)" }} />
-              <p className="text-[11px] font-medium uppercase leading-tight tracking-wider text-muted-foreground">
-                {p.title}
-              </p>
-            </div>
-          ))}
+        <div className="lg:col-span-6">
+          <HeroVisual />
         </div>
-      </section>
+      </div>
+    </section>
+  );
+}
 
+/** A real place (Le Mans) + the real product (the agent in your pocket). */
+function HeroVisual() {
+  return (
+    <div className="relative mx-auto h-[560px] w-full max-w-[520px] sm:h-[620px]">
+      <div
+        className="enter absolute right-0 top-0 h-[86%] w-[74%] overflow-hidden rounded-[28px] shadow-[0_0_0_1px_var(--border)]"
+        style={stagger(2)}
+      >
+        <img
+          src={vieuxMans.url}
+          alt="Rue pavée du Vieux Mans au coucher du soleil"
+          fetchPriority="high"
+          className="h-full w-full object-cover object-[62%_50%]"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent" />
+      </div>
 
-      {/* AI PARTNERS MARQUEE */}
-      <AiMarquee />
+      <div
+        className="enter absolute right-3 top-6 z-20 flex max-w-[250px] items-start gap-2.5 rounded-2xl bg-card/90 p-3 pr-4 shadow-[0_0_0_1px_var(--border),var(--shadow-float)] backdrop-blur-xl sm:right-[-12px]"
+        style={stagger(6)}
+      >
+        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-brand text-white">
+          <Workflow size={15} strokeWidth={2} />
+        </span>
+        <span className="min-w-0">
+          <span className="block text-[13px] font-medium leading-tight">Relance programmée</span>
+          <span className="mt-0.5 block text-[12px] leading-snug text-muted-foreground">
+            Devis n°2418, rappel à J+3
+          </span>
+        </span>
+      </div>
 
-      {/* PILLARS */}
-      <section className="px-6 py-14">
-        <div className="mx-auto max-w-7xl">
-          <Reveal>
-            <div className="mb-14 text-center">
-              <p className="mb-3 text-xs font-semibold uppercase tracking-[0.24em] text-gradient-brand">
-                Ce que nous construisons
-              </p>
-              <h2 className="text-3xl font-bold tracking-tight md:text-5xl">
-                Une infrastructure complète, pensée pour vous
-              </h2>
-              <p className="mx-auto mt-4 max-w-2xl text-muted-foreground">
-                Chaque entreprise est unique. Nos solutions le sont aussi.
-              </p>
-
-
-
-            </div>
-          </Reveal>
-
-          <GridPillars pillars={pillars} />
-        </div>
-      </section>
-
-      {/* PHONE CHAT DEMO */}
-      <section className="px-6 py-20">
-        <div className="mx-auto grid max-w-6xl items-center gap-12 lg:grid-cols-2">
-          <Reveal>
-            <PhoneChatMockup />
-          </Reveal>
-
-          <Reveal delay={150}>
-            <div>
-              <p className="mb-3 text-xs font-semibold uppercase tracking-[0.24em] text-gradient-brand">
-                Votre agent, dans votre poche
-              </p>
-              <h2 className="text-3xl font-bold tracking-tight md:text-4xl">
-                Pilotez votre entreprise depuis{" "}
-                <span className="text-gradient-brand">un simple message</span>
-              </h2>
-              <p className="mt-4 text-sm text-muted-foreground md:text-base">
-                Connecté à vos outils du quotidien (email, agenda, CRM, devis), votre assistant
-                LexNotis exécute vos demandes en langage naturel — depuis WhatsApp ou le canal de
-                votre choix.
-              </p>
-              <ul className="mt-6 space-y-3">
-                {[
-                  "Devis, relances et emails envoyés automatiquement",
-                  "Rendez-vous créés dans votre agenda",
-                  "Entraîné sur vos documents et vos process",
-                ].map((t) => (
-                  <li key={t} className="flex items-start gap-3 text-sm text-muted-foreground">
-                    <CircleCheck
-                      className="mt-0.5 h-4 w-4 shrink-0"
-                      style={{ color: "oklch(0.55 0.24 295)" }}
-                    />
-                    {t}
-                  </li>
-                ))}
-              </ul>
-              <div className="mt-8">
-                <GradientLink to="/contact">
-                  Voir ce que ça donne chez vous <ArrowRight size={16} />
-                </GradientLink>
-              </div>
-            </div>
-          </Reveal>
-        </div>
-      </section>
-
-      {/* BENEFITS — time / stress / growth */}
-      <section className="relative px-6 py-24">
-        <div className="mx-auto max-w-6xl">
-          <Reveal>
-            <div className="mb-16 text-center">
-              <p className="mb-3 text-xs font-semibold uppercase tracking-[0.24em] text-gradient-brand">
-                Pourquoi LexNotis
-              </p>
-              <h2 className="text-3xl font-bold tracking-tight md:text-5xl">
-                Gagnez du temps.
-                <br />
-                <span className="text-gradient-brand">Réduisez le stress.</span> Accélérez.
-              </h2>
-            </div>
-          </Reveal>
-
-          <div className="grid gap-6 md:grid-cols-3">
-            {benefits.map((b, i) => (
-              <Reveal key={b.title} delay={i * 120}>
-                <div className="group h-full rounded-3xl border border-black/10 bg-card/40 p-8 backdrop-blur-sm transition-all duration-500 hover:-translate-y-1 hover:border-brand hover:shadow-glow">
-                  <div className="animate-float mb-6 inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-brand shadow-glow">
-                    <b.icon className="h-7 w-7 text-primary-foreground" />
-                  </div>
-                  <h3 className="mb-3 text-xl font-semibold tracking-tight">{b.title}</h3>
-                  <p className="text-sm leading-relaxed text-muted-foreground">{b.text}</p>
-                </div>
-              </Reveal>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* TIME SAVINGS — animated counters */}
-      <section className="relative px-6 py-24">
-        <div className="mx-auto max-w-6xl">
-          <Reveal>
-            <div className="mb-14 text-center">
-              <p className="mb-3 text-xs font-semibold uppercase tracking-[0.24em] text-gradient-brand">
-                Le temps, votre vraie ressource
-              </p>
-              <h2 className="text-3xl font-bold tracking-tight md:text-5xl">
-                Chaque heure gagnée est{" "}
-                <span className="text-gradient-brand">une heure investie</span> ailleurs
-              </h2>
-              <p className="mx-auto mt-4 max-w-2xl text-muted-foreground">
-                Des résultats mesurables observés chez nos clients après déploiement de nos
-                infrastructures IA sur-mesure.
-              </p>
-            </div>
-          </Reveal>
-
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-            {[
-              {
-                icon: Timer,
-                value: 12,
-                suffix: "h",
-                label: "gagnées par semaine",
-                sub: "sur les tâches répétitives",
-              },
-              {
-                icon: Gauge,
-                value: 68,
-                suffix: "%",
-                label: "de productivité en plus",
-                sub: "sur les processus automatisés",
-              },
-              {
-                icon: CalendarCheck,
-                value: 3,
-                suffix: " sem.",
-                label: "de déploiement moyen",
-                sub: "du kick-off au go-live",
-              },
-              {
-                icon: Rocket,
-                value: 4,
-                suffix: "x",
-                label: "de vitesse d'exécution",
-                sub: "sur vos workflows critiques",
-              },
-            ].map((s, i) => (
-              <Reveal key={s.label} delay={i * 100}>
-                <div className="group relative h-full overflow-hidden rounded-3xl border border-black/10 bg-card/40 p-8 backdrop-blur-sm transition-all duration-500 hover:-translate-y-1 hover:border-brand hover:shadow-glow">
-                  <div className="absolute -right-8 -top-8 h-32 w-32 rounded-full bg-gradient-brand opacity-10 blur-2xl transition-opacity duration-500 group-hover:opacity-25" />
-                  <div className="relative">
-                    <div className="mb-5 inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-brand-soft border border-black/10">
-                      <s.icon className="h-6 w-6" style={{ color: "oklch(0.55 0.24 295)" }} />
-                    </div>
-                    <div className="text-5xl font-bold tracking-tight text-gradient-brand md:text-6xl">
-                      <AnimatedCounter to={s.value} suffix={s.suffix} />
-                    </div>
-                    <p className="mt-3 text-sm font-medium text-foreground">{s.label}</p>
-                    <p className="mt-1 text-xs text-muted-foreground">{s.sub}</p>
-                  </div>
-                </div>
-              </Reveal>
-            ))}
-          </div>
-
-          <Reveal delay={200}>
-            <div className="mt-14 flex flex-col items-center justify-center gap-4 rounded-3xl border border-black/10 bg-gradient-brand-soft p-8 text-center md:flex-row md:justify-between md:p-10 md:text-left">
-              <div>
-                <h3 className="text-xl font-semibold tracking-tight md:text-2xl">
-                  Combien d'heures pourriez-vous récupérer cette année ?
-                </h3>
-                <p className="mt-1 text-sm text-muted-foreground">
-                  Diagnostic offert · réponse sous 24h · sans engagement
-                </p>
-              </div>
-              <GradientLink to="/contact">
-                Estimer mon gain de temps <ArrowRight size={16} />
-              </GradientLink>
-            </div>
-          </Reveal>
-        </div>
-      </section>
-
-
-
-      {/* DASHBOARD PREVIEW */}
-      <section className="px-6 py-24">
-        <div className="mx-auto grid max-w-6xl items-center gap-12 lg:grid-cols-2">
-          <Reveal>
-            <div>
-              <p className="mb-3 text-xs font-semibold uppercase tracking-[0.24em] text-gradient-brand">
-                Votre espace client
-              </p>
-              <h2 className="text-3xl font-bold tracking-tight md:text-4xl">
-                Un tableau de bord clair pour{" "}
-                <span className="text-gradient-brand">tout piloter</span>
-              </h2>
-              <p className="mt-4 text-sm text-muted-foreground md:text-base">
-                Suivez vos agents IA, vos automatisations, votre site web et vos factures depuis un
-                seul endroit. Vous voyez exactement le temps gagné, semaine après semaine.
-              </p>
-              <ul className="mt-6 space-y-3">
-                {[
-                  "Suivi du temps gagné et des tâches automatisées",
-                  "Gestion de vos agents et de vos automatisations",
-                  "Abonnement, factures et accompagnement dédié",
-                ].map((t) => (
-                  <li key={t} className="flex items-start gap-3 text-sm text-muted-foreground">
-                    <CircleCheck
-                      className="mt-0.5 h-4 w-4 shrink-0"
-                      style={{ color: "oklch(0.55 0.24 295)" }}
-                    />
-                    {t}
-                  </li>
-                ))}
-              </ul>
-              <div className="mt-8">
-                <GradientLink to="/contact">
-                  Demander une démo <ArrowRight size={16} />
-                </GradientLink>
-              </div>
-            </div>
-          </Reveal>
-
-          <Reveal delay={150}>
-            <DashboardPreview />
-          </Reveal>
-        </div>
-      </section>
-
-
-      {/* INTEGRATIONS */}
-      <IntegrationsSection />
-
-
-      {/* QUOTE + CTA — same row */}
-      <section className="px-6 py-24">
-        <div className="mx-auto grid max-w-6xl items-stretch gap-6 md:grid-cols-2">
-          <Reveal>
-            <div className="flex h-full flex-col items-center justify-center rounded-3xl border border-black/10 bg-gradient-brand-soft p-10 text-center md:p-12">
-              <Quote className="mb-5 h-10 w-10 text-gradient-brand opacity-80" style={{ color: "oklch(0.55 0.24 295)" }} />
-              <p className="text-2xl font-medium leading-tight tracking-tight md:text-3xl">
-                « Moins de tâches répétitives,{" "}
-                <span className="text-gradient-brand">plus de valeur créée.</span> »
-              </p>
-              <p className="mt-5 text-xs uppercase tracking-[0.24em] text-muted-foreground">
-                Votre partenaire IA pour un avenir plus efficace
-              </p>
-            </div>
-          </Reveal>
-
-          <Reveal delay={120}>
-            <div className="flex h-full flex-col items-center justify-center rounded-3xl border border-black/10 bg-card/60 p-10 text-center backdrop-blur-xl md:p-12">
-              <h2 className="text-3xl font-bold tracking-tight md:text-4xl">
-                Prêt à <span className="text-gradient-brand">libérer</span> votre entreprise ?
-              </h2>
-              <p className="mx-auto mt-4 max-w-sm text-sm text-muted-foreground">
-                Un échange de 30 minutes suffit pour identifier les leviers qui feront la
-                différence.
-              </p>
-              <div className="mt-6 flex flex-wrap justify-center gap-3">
-                <GradientLink to="/contact">
-                  Réserver un échange <ArrowRight size={16} />
-                </GradientLink>
-                <GradientLink to="/equipe" variant="ghost">
-                  Rencontrer l'équipe
-                </GradientLink>
-              </div>
-            </div>
-          </Reveal>
-        </div>
-      </section>
+      <div className="enter absolute bottom-0 left-0 z-10 origin-bottom-left scale-[0.86] sm:scale-100" style={stagger(4)}>
+        <PhoneChatMockup />
+      </div>
     </div>
   );
 }
