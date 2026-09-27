@@ -1,10 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
-import { CheckCircle2, Mail, Send, Sparkles } from "lucide-react";
+import { CheckCircle2, Loader2, Mail, Send, Sparkles } from "lucide-react";
 import { z } from "zod";
 import { submitContact } from "@/lib/contact.functions";
-import { Reveal } from "@/components/Reveal";
+import { stagger } from "@/lib/motion";
 
 export const Route = createFileRoute("/contact")({
   head: () => ({
@@ -82,186 +82,217 @@ function ContactPage() {
   }
 
   return (
-    <div>
-      <section className="px-6 py-24 md:py-32">
-        <div className="mx-auto max-w-4xl text-center">
-          <p className="mb-4 text-xs font-semibold uppercase tracking-[0.24em] text-gradient-brand animate-fade-in">
-            Contact
-          </p>
-          <h1 className="animate-fade-up text-4xl font-bold tracking-tight md:text-6xl">
-            Parlons de <span className="text-gradient-brand animate-gradient">votre projet</span>
-          </h1>
-          <p
-            className="animate-fade-up mx-auto mt-6 max-w-2xl text-lg text-muted-foreground"
-            style={{ animationDelay: "150ms" }}
-          >
-            Décrivez votre besoin en quelques lignes. On vous répond sous 24h avec des
-            premières pistes concrètes.
-          </p>
+    <div className="container-page pb-8 pt-14 md:pt-24">
+      <div className="grid gap-14 lg:grid-cols-12 lg:gap-8">
+        <div className="lg:col-span-5">
+          <div className="lg:sticky lg:top-28">
+            <p className="type-label enter">Contact</p>
+            <h1 className="type-display enter mt-5" style={stagger(1)}>
+              Parlons de <span className="text-brand">votre projet.</span>
+            </h1>
+            <p className="type-lead enter mt-6 max-w-md" style={stagger(2)}>
+              Décrivez votre besoin en quelques lignes. On vous répond sous 24h avec des premières
+              pistes concrètes.
+            </p>
+
+            <ul className="enter mt-10 space-y-6" style={stagger(3)}>
+              <li className="flex gap-4">
+                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-brand-soft text-brand">
+                  <Mail size={18} strokeWidth={1.75} />
+                </span>
+                <span>
+                  <span className="block text-[16px] font-medium tracking-[-0.01em]">
+                    Un premier échange offert
+                  </span>
+                  <span className="mt-1 block max-w-sm text-[15px] leading-relaxed text-muted-foreground">
+                    30 minutes pour comprendre votre contexte et identifier les leviers
+                    prioritaires. Sans engagement.
+                  </span>
+                </span>
+              </li>
+              <li className="flex gap-4">
+                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-brand-soft text-brand">
+                  <Sparkles size={18} strokeWidth={1.75} />
+                </span>
+                <span>
+                  <span className="block text-[16px] font-medium tracking-[-0.01em]">
+                    Une réponse sur-mesure
+                  </span>
+                  <span className="mt-1 block max-w-sm text-[15px] leading-relaxed text-muted-foreground">
+                    Pas de template. On étudie votre demande et on revient vers vous avec une
+                    proposition réfléchie.
+                  </span>
+                </span>
+              </li>
+            </ul>
+
+            <p className="enter mt-10 text-[15px] text-muted-foreground" style={stagger(4)}>
+              Vous préférez l'email ?{" "}
+              <a href="mailto:contact@lexnotis.com" className="link-underline font-medium text-foreground">
+                contact@lexnotis.com
+              </a>
+            </p>
+          </div>
         </div>
-      </section>
 
-      <section className="px-6 pb-24">
-        <div className="mx-auto grid max-w-6xl gap-10 lg:grid-cols-[1fr_1.3fr]">
-          <Reveal>
-            <div className="space-y-6">
-              <div className="rounded-3xl border border-black/10 bg-card/50 p-8 backdrop-blur-sm">
-                <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-brand shadow-glow">
-                  <Mail className="h-6 w-6 text-primary-foreground" />
+        <div className="enter lg:col-span-7" style={stagger(2)}>
+          <form onSubmit={onSubmit} noValidate className="surface p-6 sm:p-8 md:p-10">
+            {status === "success" ? (
+              <div className="flex flex-col items-start py-10" aria-live="polite">
+                <div className="animate-fade-up mb-6 inline-flex h-12 w-12 items-center justify-center rounded-full bg-brand-soft text-brand">
+                  <CheckCircle2 size={24} strokeWidth={1.75} />
                 </div>
-                <h3 className="text-lg font-semibold">Un premier échange offert</h3>
-                <p className="mt-2 text-sm text-muted-foreground">
-                  30 minutes pour comprendre votre contexte et identifier les leviers
-                  prioritaires. Sans engagement.
+                <h2 className="type-h2">Message envoyé.</h2>
+                <p className="type-lead mt-4 max-w-md">
+                  Merci pour votre message. On revient vers vous très vite, généralement sous 24h
+                  ouvrées.
                 </p>
+                <button
+                  type="button"
+                  onClick={() => setStatus("idle")}
+                  className="btn btn-ghost mt-8"
+                >
+                  Envoyer un autre message
+                </button>
               </div>
-
-              <div className="rounded-3xl border border-black/10 bg-card/50 p-8 backdrop-blur-sm">
-                <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-brand shadow-glow">
-                  <Sparkles className="h-6 w-6 text-primary-foreground" />
-                </div>
-                <h3 className="text-lg font-semibold">Une réponse sur-mesure</h3>
-                <p className="mt-2 text-sm text-muted-foreground">
-                  Pas de template. On étudie votre demande et on revient vers vous avec
-                  une proposition réfléchie.
-                </p>
-              </div>
-            </div>
-          </Reveal>
-
-          <Reveal delay={150}>
-            <form
-              onSubmit={onSubmit}
-              className="rounded-3xl border border-black/10 bg-card/60 p-8 backdrop-blur-xl md:p-10"
-            >
-              {status === "success" ? (
-                <div className="flex flex-col items-center py-12 text-center">
-                  <div className="animate-fade-up mb-6 inline-flex h-16 w-16 items-center justify-center rounded-full bg-gradient-brand shadow-glow">
-                    <CheckCircle2 className="h-8 w-8 text-primary-foreground" />
-                  </div>
-                  <h3 className="text-2xl font-bold tracking-tight">Message envoyé !</h3>
-                  <p className="mt-3 max-w-md text-muted-foreground">
-                    Merci pour votre message. On revient vers vous très vite —
-                    généralement sous 24h ouvrées.
-                  </p>
-                  <button
-                    type="button"
-                    onClick={() => setStatus("idle")}
-                    className="mt-8 text-sm text-gradient-brand hover:underline"
-                  >
-                    Envoyer un autre message
-                  </button>
-                </div>
-              ) : (
-                <>
-                  <div className="grid gap-5 md:grid-cols-2">
-                    <Field label="Nom" error={errors.name}>
-                      <input
-                        value={form.name}
-                        onChange={update("name")}
-                        maxLength={100}
-                        className={inputCls}
-                        placeholder="Votre nom"
-                      />
-                    </Field>
-                    <Field label="Email" error={errors.email}>
-                      <input
-                        type="email"
-                        value={form.email}
-                        onChange={update("email")}
-                        maxLength={255}
-                        className={inputCls}
-                        placeholder="vous@entreprise.com"
-                      />
-                    </Field>
-                  </div>
-
-                  <div className="mt-5 grid gap-5 md:grid-cols-2">
-                    <Field label="Entreprise" optional error={errors.company}>
-                      <input
-                        value={form.company}
-                        onChange={update("company")}
-                        maxLength={120}
-                        className={inputCls}
-                        placeholder="Nom de votre entreprise"
-                      />
-                    </Field>
-                    <Field label="Sujet" error={errors.subject}>
-                      <input
-                        value={form.subject}
-                        onChange={update("subject")}
-                        maxLength={200}
-                        className={inputCls}
-                        placeholder="Automatisation, IA, refonte…"
-                      />
-                    </Field>
-                  </div>
-
-                  <Field label="Votre message" error={errors.message} className="mt-5">
-                    <textarea
-                      value={form.message}
-                      onChange={update("message")}
-                      maxLength={2000}
-                      rows={6}
-                      className={`${inputCls} resize-none`}
-                      placeholder="Décrivez brièvement votre entreprise et ce que vous aimeriez transformer."
+            ) : (
+              <>
+                <div className="grid gap-5 md:grid-cols-2">
+                  <Field label="Nom" error={errors.name} htmlFor="contact-name">
+                    <input
+                      id="contact-name"
+                      name="name"
+                      autoComplete="name"
+                      value={form.name}
+                      onChange={update("name")}
+                      maxLength={100}
+                      aria-invalid={!!errors.name}
+                      className={inputCls}
+                      placeholder="Votre nom"
                     />
                   </Field>
+                  <Field label="Email" error={errors.email} htmlFor="contact-email">
+                    <input
+                      id="contact-email"
+                      name="email"
+                      type="email"
+                      autoComplete="email"
+                      inputMode="email"
+                      value={form.email}
+                      onChange={update("email")}
+                      maxLength={255}
+                      aria-invalid={!!errors.email}
+                      className={inputCls}
+                      placeholder="vous@entreprise.com"
+                    />
+                  </Field>
+                </div>
 
-                  {status === "error" && (
-                    <p className="mt-4 rounded-lg border border-destructive/40 bg-destructive/10 px-4 py-3 text-sm text-destructive-foreground">
-                      {errorMsg}
-                    </p>
-                  )}
+                <div className="mt-5 grid gap-5 md:grid-cols-2">
+                  <Field label="Entreprise" optional error={errors.company} htmlFor="contact-company">
+                    <input
+                      id="contact-company"
+                      name="company"
+                      autoComplete="organization"
+                      value={form.company}
+                      onChange={update("company")}
+                      maxLength={120}
+                      className={inputCls}
+                      placeholder="Nom de votre entreprise"
+                    />
+                  </Field>
+                  <Field label="Sujet" error={errors.subject} htmlFor="contact-subject">
+                    <input
+                      id="contact-subject"
+                      name="subject"
+                      value={form.subject}
+                      onChange={update("subject")}
+                      maxLength={200}
+                      aria-invalid={!!errors.subject}
+                      className={inputCls}
+                      placeholder="Automatisation, IA, refonte…"
+                    />
+                  </Field>
+                </div>
 
-                  <button
-                    type="submit"
-                    disabled={status === "loading"}
-                    className="group mt-8 inline-flex w-full items-center justify-center gap-2 rounded-full bg-gradient-brand px-6 py-3.5 text-sm font-medium text-primary-foreground shadow-glow transition-all duration-300 hover:scale-[1.02] hover:shadow-[0_25px_70px_-15px_oklch(0.62_0.22_290/0.7)] active:scale-[0.99] disabled:opacity-60"
+                <Field
+                  label="Votre message"
+                  error={errors.message}
+                  htmlFor="contact-message"
+                  className="mt-5"
+                >
+                  <textarea
+                    id="contact-message"
+                    name="message"
+                    value={form.message}
+                    onChange={update("message")}
+                    maxLength={2000}
+                    rows={6}
+                    aria-invalid={!!errors.message}
+                    className={`${inputCls} h-auto resize-none py-3 leading-relaxed`}
+                    placeholder="Décrivez brièvement votre entreprise et ce que vous aimeriez transformer."
+                  />
+                </Field>
+
+                {status === "error" && (
+                  <p
+                    role="alert"
+                    className="mt-5 rounded-xl bg-destructive/10 px-4 py-3 text-[14px] text-destructive-foreground"
                   >
-                    {status === "loading" ? (
-                      "Envoi en cours…"
-                    ) : (
-                      <>
-                        Envoyer mon message
-                        <Send size={16} className="transition-transform group-hover:translate-x-1" />
-                      </>
-                    )}
-                  </button>
-                </>
-              )}
-            </form>
-          </Reveal>
+                    {errorMsg}
+                  </p>
+                )}
+
+                <button
+                  type="submit"
+                  disabled={status === "loading"}
+                  className="btn btn-primary mt-8 h-12 w-full"
+                >
+                  {status === "loading" ? (
+                    <>
+                      <Loader2 size={16} className="animate-spin" /> Envoi en cours…
+                    </>
+                  ) : (
+                    <>
+                      Envoyer mon message <Send size={15} className="btn-arrow" />
+                    </>
+                  )}
+                </button>
+              </>
+            )}
+          </form>
         </div>
-      </section>
+      </div>
     </div>
   );
 }
 
 const inputCls =
-  "w-full rounded-xl border border-black/10 bg-background/40 px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground/60 transition focus:border-brand focus:outline-none focus:ring-2 focus:ring-ring/40";
+  "h-12 w-full rounded-xl bg-background px-4 text-[16px] text-foreground shadow-[inset_0_0_0_1px_var(--input)] outline-none transition-shadow duration-150 placeholder:text-muted-foreground focus:shadow-[inset_0_0_0_1px_var(--ring),0_0_0_4px_oklch(0.52_0.215_289/0.12)] aria-[invalid=true]:shadow-[inset_0_0_0_1px_var(--destructive)] md:text-[15px]";
 
 function Field({
   label,
   children,
   error,
   optional,
+  htmlFor,
   className = "",
 }: {
   label: string;
   children: React.ReactNode;
   error?: string;
   optional?: boolean;
+  htmlFor: string;
   className?: string;
 }) {
   return (
-    <label className={`block ${className}`}>
-      <span className="mb-2 flex items-center gap-2 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+    <div className={`flex flex-col gap-2 ${className}`}>
+      <label htmlFor={htmlFor} className="flex items-baseline gap-2 text-[14px] font-medium">
         {label}
-        {optional && <span className="text-[10px] normal-case tracking-normal text-muted-foreground/60">(optionnel)</span>}
-      </span>
+        {optional && <span className="text-[13px] font-normal text-muted-foreground">(optionnel)</span>}
+      </label>
       {children}
-      {error && <span className="mt-1.5 block text-xs text-destructive-foreground">{error}</span>}
-    </label>
+      {error && <span className="text-[13px] text-destructive-foreground">{error}</span>}
+    </div>
   );
 }

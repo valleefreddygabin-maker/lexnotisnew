@@ -99,7 +99,7 @@ function PasswordStrength({ password }: { password: string }) {
         {[0, 1, 2].map((i) => (
           <div
             key={i}
-            className={`h-1 flex-1 rounded-full transition-all duration-300 ${i < score ? color : "bg-black/10"}`}
+            className={`h-1 flex-1 rounded-full transition-colors duration-300 ${i < score ? color : "bg-black/10"}`}
           />
         ))}
       </div>
@@ -264,10 +264,10 @@ function Connexion() {
     <div className="px-6 py-16">
       <div className="mx-auto max-w-md">
         <div className="mb-8 text-center">
-          <p className="mb-3 text-xs font-semibold uppercase tracking-[0.24em] text-gradient-brand">
+          <p className="type-label mb-4">
             Espace client
           </p>
-          <h1 className="text-3xl font-bold tracking-tight md:text-4xl">
+          <h1 className="text-[34px] font-semibold leading-[1.05] tracking-[-0.04em] md:text-[44px]">
             {mode === "signin" ? (
               <>
                 Bon retour sur <span className="text-gradient-brand">LexNotis</span>
@@ -436,7 +436,7 @@ function Connexion() {
             type="button"
             onClick={onGoogle}
             disabled={loading}
-            className="flex w-full items-center justify-center gap-2 rounded-full border border-black/15 bg-black/5 px-5 py-3 text-sm font-medium text-foreground transition-all duration-300 hover:scale-[1.02] hover:bg-black/10 disabled:opacity-50"
+            className="btn btn-ghost w-full"
           >
             <svg viewBox="0 0 24 24" className="h-4 w-4" aria-hidden>
               <path

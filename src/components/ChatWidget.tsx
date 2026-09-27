@@ -77,7 +77,7 @@ export function ChatWidget() {
         aria-label="Ouvrir le chat avec Valentin"
         aria-expanded={open}
         className={cn(
-          "group flex items-center gap-2.5 rounded-full bg-foreground p-1.5 text-background shadow-[0_0_0_1px_oklch(1_0_0/0.08),var(--shadow-float)] transition-[transform,opacity] duration-200 ease-out active:scale-[0.97] md:pr-4",
+          "group flex items-center gap-2.5 rounded-full bg-foreground p-1.5 text-background shadow-[0_0_0_1px_oklch(1_0_0/0.16),var(--shadow-float)] transition-[transform,opacity] duration-200 ease-out active:scale-[0.97] md:pr-4",
           open ? "pointer-events-none scale-95 opacity-0" : "scale-100 opacity-100",
         )}
       >

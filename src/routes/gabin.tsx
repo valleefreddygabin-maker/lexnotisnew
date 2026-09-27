@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { ArrowRight, Calendar, Mail, MapPin } from "lucide-react";
+import { ArrowRight, Mail, MapPin } from "lucide-react";
+import { stagger } from "@/lib/motion";
 import { GradientLink } from "@/components/GradientButton";
 import { Reveal } from "@/components/Reveal";
 import gabinPhoto from "@/assets/gabin.png.asset.json";
@@ -23,97 +24,79 @@ export const Route = createFileRoute("/gabin")({
     ],
     links: [{ rel: "canonical", href: "/gabin" }],
   }),
+  staticData: {
+    cta: {
+      title: "Chaque heure gagnée pour un client est une victoire.",
+      text: "Parlez-moi de votre activité et des tâches qui vous prennent le plus de temps. Le premier échange est offert.",
+    },
+  },
   component: GabinPage,
 });
 
 function GabinPage() {
   return (
     <div>
-      <section className="px-6 pt-12 pb-16 md:pt-20 md:pb-24">
-        <div className="mx-auto max-w-5xl">
-          <div className="grid items-center gap-10 md:grid-cols-2 md:gap-16">
-            <Reveal>
-              <div className="relative mx-auto max-w-xs md:mx-0">
-                <div className="absolute inset-0 rounded-3xl bg-gradient-brand opacity-40 blur-2xl" />
-                <div className="relative overflow-hidden rounded-3xl border border-black/10 bg-card/50 p-2 backdrop-blur-sm">
-                  <div className="overflow-hidden rounded-2xl bg-gradient-brand p-[2px]">
-                    <img
-                      src={gabinPhoto.url}
-                      alt="Gabin, CEO et fondateur de LexNotis"
-                      className="aspect-[4/5] w-full object-cover"
-                      style={{ objectPosition: "center 55%" }}
-                    />
-                  </div>
-                </div>
-              </div>
-            </Reveal>
+      <section className="container-page pb-16 pt-12 md:pb-24 md:pt-20">
+        <div className="grid items-center gap-12 md:grid-cols-12 md:gap-10">
+          <div className="enter md:col-span-5" style={stagger(1)}>
+            <div className="relative mx-auto aspect-[4/5] max-w-[420px] overflow-hidden rounded-[28px] bg-brand-soft md:mx-0">
+              <div
+                aria-hidden
+                className="absolute inset-x-0 bottom-0 h-2/3 bg-[radial-gradient(closest-side,oklch(0.52_0.215_289/0.18),transparent)]"
+              />
+              <img
+                src={gabinPhoto.url}
+                alt="Gabin, CEO et fondateur de LexNotis"
+                className="absolute inset-0 h-full w-full object-cover object-[50%_58%] [transform:scale(1.55)] [transform-origin:50%_78%]"
+              />
+            </div>
+          </div>
 
-            <Reveal delay={100}>
-              <div className="text-center md:text-left">
-                <p className="mb-3 text-xs font-semibold uppercase tracking-[0.24em] text-gradient-brand">
-                  CEO & Fondateur
-                </p>
-                <h1 className="text-4xl font-bold tracking-tight md:text-6xl">
-                  Gabin
-                </h1>
-                <p className="mt-4 text-lg text-muted-foreground">
-                  Fondateur de LexNotis. Je conçois des infrastructures et assistants IA
-                  sur-mesure pour libérer le temps des entreprises et leur faire gagner en
-                  sérénité.
-                </p>
+          <div className="md:col-span-7 md:pl-6">
+            <p className="type-label enter">CEO & Fondateur</p>
+            <h1 className="type-display enter mt-5" style={stagger(1)}>
+              Gabin
+            </h1>
+            <p className="type-lead enter mt-6 max-w-xl" style={stagger(2)}>
+              Fondateur de LexNotis. Je conçois des infrastructures et assistants IA sur-mesure pour
+              libérer le temps des entreprises et leur faire gagner en sérénité.
+            </p>
 
-                <div className="mt-8 flex flex-wrap items-center justify-center gap-4 md:justify-start">
-                  <div className="flex items-center gap-2 rounded-full border border-black/10 bg-black/5 px-4 py-2 text-sm text-muted-foreground">
-                    <MapPin size={14} className="text-brand" />
-                    Sarthe, France
-                  </div>
-                  <div className="flex items-center gap-2 rounded-full border border-black/10 bg-black/5 px-4 py-2 text-sm text-muted-foreground">
-                    <Calendar size={14} className="text-brand" />
-                    LexNotis
-                  </div>
-                </div>
+            <p
+              className="enter mt-6 inline-flex items-center gap-1.5 text-[15px] text-muted-foreground"
+              style={stagger(3)}
+            >
+              <MapPin size={15} strokeWidth={1.75} className="text-brand" /> Sarthe, France
+            </p>
 
-                <div className="mt-8 flex flex-col items-center gap-3 sm:flex-row md:justify-start">
-                  <GradientLink to="/contact">
-                    Discuter de mon projet <ArrowRight size={16} />
-                  </GradientLink>
-                  <a
-                    href="mailto:contact@lexnotis.com"
-                    className="inline-flex items-center gap-2 rounded-full border border-black/15 bg-black/5 px-5 py-3 text-sm text-foreground transition-all hover:bg-black/10"
-                  >
-                    <Mail size={14} /> contact@lexnotis.com
-                  </a>
-                </div>
-              </div>
-            </Reveal>
+            <div className="enter mt-9 flex flex-wrap gap-3" style={stagger(4)}>
+              <GradientLink to="/contact">
+                Discuter de mon projet <ArrowRight size={16} />
+              </GradientLink>
+              <a href="mailto:contact@lexnotis.com" className="btn btn-ghost">
+                <Mail size={15} strokeWidth={1.75} /> contact@lexnotis.com
+              </a>
+            </div>
           </div>
         </div>
       </section>
 
-      <section className="px-6 py-16 md:py-24">
-        <div className="mx-auto max-w-3xl">
+      <section className="py-16 md:py-24">
+        <div className="container-page">
           <Reveal>
-            <div className="rounded-3xl border border-black/10 bg-card/60 p-8 backdrop-blur-xl md:p-12">
-              <p className="text-lg leading-relaxed text-muted-foreground md:text-xl">
+            <div className="max-w-4xl space-y-8 text-[22px] font-medium leading-[1.4] tracking-[-0.02em] text-muted-foreground md:text-[30px]">
+              <p>
                 Je crois que{" "}
-                <span className="text-foreground font-medium">
-                  la technologie n'a de sens que si elle simplifie la vie de ceux qui
-                  l'utilisent
-                </span>
-                . C'est pourquoi j'ai créé LexNotis : aider les entreprises à se
-                débarrasser des tâches répétitives, à gagner du temps et à se concentrer
-                sur ce qui compte vraiment.
+                <span className="text-foreground">
+                  la technologie n'a de sens que si elle simplifie la vie de ceux qui l'utilisent.
+                </span>{" "}
+                C'est pourquoi j'ai créé LexNotis : aider les entreprises à se débarrasser des
+                tâches répétitives, à gagner du temps et à se concentrer sur ce qui compte vraiment.
               </p>
-              <p className="mt-6 text-lg leading-relaxed text-muted-foreground md:text-xl">
-                Chaque solution est pensée sur mesure. Pas de logiciel tout fait, pas de
-                promesses creuses. Juste des outils qui fonctionnent, une écoute réelle et
-                un accompagnement sans stress.
-              </p>
-              <p className="mt-6 text-lg leading-relaxed text-muted-foreground md:text-xl">
-                Mon objectif :{" "}
-                <span className="text-gradient-brand font-medium">
-                  chaque heure gagnée pour un client est une victoire.
-                </span>
+              <p>
+                Chaque solution est pensée sur mesure. Pas de logiciel tout fait, pas de promesses
+                creuses. <span className="text-foreground">Juste des outils qui fonctionnent</span>,
+                une écoute réelle et un accompagnement sans stress.
               </p>
             </div>
           </Reveal>

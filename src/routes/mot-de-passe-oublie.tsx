@@ -70,10 +70,10 @@ function ForgotPassword() {
     <div className="px-6 py-16">
       <div className="mx-auto max-w-md">
         <div className="mb-8 text-center">
-          <p className="mb-3 text-xs font-semibold uppercase tracking-[0.24em] text-gradient-brand">
+          <p className="type-label mb-4">
             Espace client
           </p>
-          <h1 className="text-3xl font-bold tracking-tight md:text-4xl">
+          <h1 className="text-[34px] font-semibold leading-[1.05] tracking-[-0.04em] md:text-[44px]">
             Mot de passe <span className="text-gradient-brand">oublié</span>
           </h1>
           <p className="mx-auto mt-3 max-w-sm text-sm text-muted-foreground">

@@ -1,5 +1,6 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { Link } from "@tanstack/react-router";
+import { stagger } from "@/lib/motion";
 
 export const legalNav = [
   { to: "/mentions-legales", label: "Mentions légales" },
@@ -25,7 +26,7 @@ export function LegalPage({
 }) {
   const [activeId, setActiveId] = useState<string | null>(null);
 
-  // Scroll-spy: highlight the section in view (no URL rewriting — it caused scroll jumps).
+  // Scroll-spy: highlight the section in view (no URL rewriting, it caused scroll jumps).
   useEffect(() => {
     if (!sections || sections.length === 0 || typeof window === "undefined") return;
 
@@ -53,94 +54,100 @@ export function LegalPage({
 
 
   return (
-    <main className="mx-auto max-w-4xl px-6 pb-24 pt-28">
-      <p className="mb-2 text-xs font-semibold uppercase tracking-[0.24em] text-gradient-brand">
-        {eyebrow}
-      </p>
-      <h1 className="text-3xl font-bold tracking-tight text-foreground md:text-5xl">{title}</h1>
-      <p className="mt-4 max-w-2xl text-sm text-muted-foreground md:text-base">{intro}</p>
-      <p className="mt-2 text-xs text-muted-foreground">Dernière mise à jour : {updated}</p>
+    <div className="container-page pb-8 pt-14 md:pt-24">
+      <header className="max-w-3xl">
+        <p className="type-label enter">{eyebrow}</p>
+        <h1 className="type-h2 enter mt-5" style={stagger(1)}>
+          {title}
+        </h1>
+        <p className="type-lead enter mt-5" style={stagger(2)}>
+          {intro}
+        </p>
+        <p className="enter mt-3 text-[14px] text-muted-foreground" style={stagger(2)}>
+          Dernière mise à jour : {updated}
+        </p>
+      </header>
 
-      {sections && sections.length > 0 && (
-        <div className="mt-8 rounded-2xl border border-black/10 bg-black/[0.02] p-4 md:p-5">
-          <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-            Sur cette page
-          </p>
-          <ul className="grid gap-2 sm:grid-cols-2">
-            {sections.map((section) => {
-              const isActive = activeId === section.id;
-              return (
-                <li key={section.id}>
-                  <a
-                    href={`#${section.id}`}
-                    onClick={(event) => {
-                      const el = document.getElementById(section.id);
-                      if (!el) return;
-                      event.preventDefault();
-                      // Hash is synced only on click, never during scroll.
-                      window.history.replaceState(null, "", `#${section.id}`);
-                      setActiveId(section.id);
-                      const top = el.getBoundingClientRect().top + window.scrollY - 96;
-                      window.scrollTo({ top, behavior: "smooth" });
-                    }}
-                    className={`group flex items-center gap-2 text-sm transition-colors ${
-                      isActive
-                        ? "font-medium text-foreground"
-                        : "text-muted-foreground hover:text-foreground"
-                    }`}
-                  >
+      <div className="mt-14 grid gap-12 border-t border-border pt-12 lg:grid-cols-12 lg:gap-8">
+        <aside className="lg:col-span-3">
+          <div className="space-y-10 lg:sticky lg:top-28">
+            {sections && sections.length > 0 && (
+              <nav aria-label="Sur cette page">
+                <p className="type-label mb-4">Sur cette page</p>
+                <ul className="space-y-0.5 border-l border-border">
+                  {sections.map((section) => {
+                    const isActive = activeId === section.id;
+                    return (
+                      <li key={section.id}>
+                        <a
+                          href={`#${section.id}`}
+                          aria-current={isActive ? "true" : undefined}
+                          onClick={(event) => {
+                            const el = document.getElementById(section.id);
+                            if (!el) return;
+                            event.preventDefault();
+                            // Hash is synced only on click, never during scroll.
+                            window.history.replaceState(null, "", `#${section.id}`);
+                            setActiveId(section.id);
+                            const top = el.getBoundingClientRect().top + window.scrollY - 96;
+                            window.scrollTo({ top, behavior: "smooth" });
+                          }}
+                          className={`-ml-px block border-l py-1.5 pl-4 text-[14px] transition-colors duration-200 ${
+                            isActive
+                              ? "border-brand font-medium text-foreground"
+                              : "border-transparent text-muted-foreground hover:text-foreground"
+                          }`}
+                        >
+                          {section.title}
+                        </a>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </nav>
+            )}
 
-                    <span
-                      className={`h-1.5 w-1.5 rounded-full transition-all group-hover:h-2 group-hover:w-2 ${
-                        isActive ? "bg-brand" : "bg-brand/60"
-                      }`}
-                    />
-                    {section.title}
-                  </a>
-                </li>
-              );
-            })}
-          </ul>
+            <nav aria-label="Pages légales">
+              <p className="type-label mb-4">Pages légales</p>
+              <ul className="flex flex-wrap gap-2 lg:flex-col lg:gap-1">
+                {legalNav.map((item) => (
+                  <li key={item.to}>
+                    <Link
+                      to={item.to}
+                      className="inline-block rounded-full px-3 py-1.5 text-[14px] text-muted-foreground shadow-[inset_0_0_0_1px_var(--border)] transition-colors hover:text-foreground lg:rounded-none lg:px-0 lg:py-1 lg:shadow-none"
+                      activeProps={{ className: "font-medium !text-foreground" }}
+                    >
+                      {item.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </nav>
+          </div>
+        </aside>
+
+        <div className="lg:col-span-8 lg:col-start-5">
+          <div className="space-y-12">{children}</div>
+
+          <div className="mt-16 rounded-3xl bg-secondary p-6 md:p-8">
+            <p className="text-[15px] leading-relaxed text-muted-foreground">
+              Une question sur ces informations ou sur vos données ?{" "}
+              <Link to="/contact" className="font-medium text-foreground underline underline-offset-4">
+                Contactez-nous
+              </Link>{" "}
+              ou écrivez à{" "}
+              <a
+                href="mailto:contact@lexnotis.com"
+                className="font-medium text-foreground underline underline-offset-4"
+              >
+                contact@lexnotis.com
+              </a>
+              .
+            </p>
+          </div>
         </div>
-      )}
-
-      <div className="mt-8">
-        <p className="mb-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-          Pages légales
-        </p>
-        <nav className="flex flex-wrap gap-2">
-          {legalNav.map((item) => (
-            <Link
-              key={item.to}
-              to={item.to}
-              className="rounded-full border border-black/10 bg-black/[0.03] px-3.5 py-1.5 text-xs text-muted-foreground transition-colors hover:border-brand/30 hover:text-foreground"
-              activeProps={{ className: "border-brand/40 bg-brand/10 font-medium text-foreground" }}
-            >
-              {item.label}
-            </Link>
-          ))}
-        </nav>
       </div>
-
-      <div className="mt-10 space-y-8">{children}</div>
-
-      <div className="mt-14 rounded-2xl border border-black/10 bg-black/[0.02] p-6">
-        <p className="text-sm text-muted-foreground">
-          Une question sur ces informations ou sur vos données ?{" "}
-          <Link to="/contact" className="text-foreground underline underline-offset-4">
-            Contactez-nous
-          </Link>{" "}
-          ou écrivez à{" "}
-          <a
-            href="mailto:contact@lexnotis.com"
-            className="text-foreground underline underline-offset-4"
-          >
-            contact@lexnotis.com
-          </a>
-          .
-        </p>
-      </div>
-    </main>
+    </div>
   );
 }
 
@@ -154,12 +161,11 @@ export function LegalSection({
   children: ReactNode;
 }) {
   return (
-    <section
-      id={id}
-      className="scroll-mt-24 rounded-2xl border border-black/10 bg-white/60 p-6 md:p-7"
-    >
-      <h2 className="text-lg font-semibold tracking-tight text-foreground">{title}</h2>
-      <div className="mt-3 space-y-3 text-sm leading-relaxed text-muted-foreground">{children}</div>
+    <section id={id} className="scroll-mt-28 rounded-2xl">
+      <h2 className="text-[20px] font-semibold tracking-[-0.02em] text-foreground">{title}</h2>
+      <div className="mt-4 max-w-[68ch] space-y-3 text-[16px] leading-relaxed text-muted-foreground [&_a]:text-foreground [&_li]:pl-1 [&_strong]:font-medium [&_strong]:text-foreground">
+        {children}
+      </div>
     </section>
   );
 }

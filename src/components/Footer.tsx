@@ -1,9 +1,16 @@
-import { Link, useRouterState } from "@tanstack/react-router";
+import { Link, useMatches, useRouterState } from "@tanstack/react-router";
 import { ArrowRight } from "lucide-react";
 import { Logo } from "./Logo";
 import { socials } from "@/lib/socials";
 import { legalNav } from "./LegalPage";
 import { Reveal } from "./Reveal";
+
+declare module "@tanstack/react-router" {
+  interface StaticDataRouteOption {
+    /** Page-specific closing message shown above the footer. */
+    cta?: { title: string; text: string };
+  }
+}
 
 // Pages where a "talk to us" call-to-action would be redundant.
 const NO_CTA = ["/contact", "/connexion", "/mot-de-passe-oublie", "/reset-password"];
@@ -21,6 +28,9 @@ const navigation = [
 export function Footer() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const showCta = !NO_CTA.includes(pathname);
+  const cta = useMatches({
+    select: (matches) => [...matches].reverse().find((m) => m.staticData?.cta)?.staticData?.cta,
+  });
 
   return (
     <footer className="dark px-2 pb-2 pt-24 md:px-3 md:pb-3 md:pt-32">
@@ -36,14 +46,20 @@ export function Footer() {
             <div className="border-b border-border py-20 md:py-28">
               <Reveal>
                 <h2 className="type-h2 max-w-3xl">
-                  Moins de tâches répétitives.{" "}
-                  <span className="text-muted-foreground">Plus de valeur créée.</span>
+                  {cta ? (
+                    cta.title
+                  ) : (
+                    <>
+                      Moins de tâches répétitives.{" "}
+                      <span className="text-muted-foreground">Plus de valeur créée.</span>
+                    </>
+                  )}
                 </h2>
               </Reveal>
               <Reveal delay={80}>
                 <p className="type-lead mt-6 max-w-xl">
-                  Un échange de 30 minutes suffit pour identifier les leviers qui feront la
-                  différence. Offert et sans engagement.
+                  {cta?.text ??
+                    "Un échange de 30 minutes suffit pour identifier les leviers qui feront la différence. Offert et sans engagement."}
                 </p>
               </Reveal>
               <Reveal delay={140}>

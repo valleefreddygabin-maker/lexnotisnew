@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
-import { ChevronDown } from "lucide-react";
-import { GradientLink } from "@/components/GradientButton";
+import { useId, useState } from "react";
+import { Plus } from "lucide-react";
+import { stagger } from "@/lib/motion";
 
 export const Route = createFileRoute("/faq")({
   head: () => ({
@@ -37,6 +37,12 @@ export const Route = createFileRoute("/faq")({
       },
     ],
   }),
+  staticData: {
+    cta: {
+      title: "Une autre question ?",
+      text: "Parlons-en en 30 minutes, gratuitement et sans engagement.",
+    },
+  },
   component: FAQ,
 });
 
@@ -74,80 +80,65 @@ const faqs = [
 ];
 
 function FAQ() {
-  const [openIndex, setOpenIndex] = useState<number | null>(null);
-
-  const toggle = (index: number) => {
-    setOpenIndex(openIndex === index ? null : index);
-  };
+  const [openIndex, setOpenIndex] = useState<number | null>(0);
+  const baseId = useId();
 
   return (
-    <div className="px-6 pt-24 pb-16 font-faq">
-      <div className="mx-auto max-w-3xl">
-        <div className="mb-8">
-          <h1 className="font-display text-3xl font-bold tracking-tight md:text-4xl">
-            Questions fréquentes
-          </h1>
-          <p className="mt-2 text-sm text-muted-foreground">
-            L'essentiel, simplement.
-          </p>
+    <div className="container-page pb-8 pt-14 md:pt-24">
+      <div className="grid gap-12 lg:grid-cols-12 lg:gap-8">
+        <div className="lg:col-span-4">
+          <div className="lg:sticky lg:top-28">
+            <p className="type-label enter">FAQ</p>
+            <h1 className="type-h2 enter mt-5" style={stagger(1)}>
+              Questions fréquentes
+            </h1>
+            <p className="type-lead enter mt-5" style={stagger(2)}>
+              L'essentiel, simplement.
+            </p>
+          </div>
         </div>
 
-        <div className="space-y-3">
-          {faqs.map((item, index) => {
-            const isOpen = openIndex === index;
-            return (
-              <div
-                key={item.question}
-                data-open={isOpen}
-                className="rounded-2xl border border-black/10 bg-card transition-colors duration-300 ease-out hover:border-black/20 data-[open=true]:border-violet/30"
-              >
-                <button
-                  onClick={() => toggle(index)}
-                  className="flex w-full items-center justify-between gap-4 py-5 px-5 text-left"
-                  aria-expanded={isOpen}
-                >
-                  <h3 className="font-display text-sm font-semibold leading-snug md:text-base">
-                    {item.question}
-                  </h3>
-                  <span
-                    className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full border border-black/10 text-muted-foreground transition-transform duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] data-[open=true]:rotate-180 data-[open=true]:border-violet/30 data-[open=true]:text-primary"
-                  >
-                    <ChevronDown className="h-3.5 w-3.5" />
-                  </span>
-                </button>
-
-                <div
-                  className="grid transition-[grid-template-rows] duration-500 ease-[cubic-bezier(0.32,0.72,0,1)]"
-                  style={{ gridTemplateRows: isOpen ? "1fr" : "0fr" }}
-                >
-                  <div className="overflow-hidden">
-                    <div
-                      className="px-5 pb-5 transition-opacity duration-300 ease-out"
-                      style={{ opacity: isOpen ? 1 : 0 }}
+        <div className="enter lg:col-span-7 lg:col-start-6" style={stagger(2)}>
+          <ul className="border-t border-border">
+            {faqs.map((item, index) => {
+              const isOpen = openIndex === index;
+              const panelId = `${baseId}-panel-${index}`;
+              const buttonId = `${baseId}-button-${index}`;
+              return (
+                <li key={item.question} data-open={isOpen} className="group border-b border-border">
+                  <h2>
+                    <button
+                      id={buttonId}
+                      onClick={() => setOpenIndex(isOpen ? null : index)}
+                      className="flex w-full items-start justify-between gap-6 py-6 text-left"
+                      aria-expanded={isOpen}
+                      aria-controls={panelId}
                     >
-                      <p className="pt-1 text-sm leading-relaxed text-muted-foreground">
+                      <span className="text-[18px] font-medium leading-snug tracking-[-0.02em] md:text-[20px]">
+                        {item.question}
+                      </span>
+                      <span className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-muted-foreground shadow-[inset_0_0_0_1px_var(--border)] transition-[transform,color,background-color] duration-200 ease-out group-data-[open=true]:rotate-45 group-data-[open=true]:bg-foreground group-data-[open=true]:text-background">
+                        <Plus size={15} strokeWidth={2} />
+                      </span>
+                    </button>
+                  </h2>
+
+                  <div
+                    id={panelId}
+                    role="region"
+                    aria-labelledby={buttonId}
+                    className="grid grid-rows-[0fr] transition-[grid-template-rows] duration-300 ease-out group-data-[open=true]:grid-rows-[1fr]"
+                  >
+                    <div className="overflow-hidden">
+                      <p className="max-w-2xl pb-7 pr-12 text-[16px] leading-relaxed text-muted-foreground opacity-0 transition-opacity duration-200 group-data-[open=true]:opacity-100 group-data-[open=true]:delay-75">
                         {item.answer}
                       </p>
                     </div>
                   </div>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-
-        <div className="mt-10 rounded-2xl border border-black/10 bg-card p-6">
-          <h2 className="font-display text-base font-semibold">
-            Une autre question ?
-          </h2>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Parlons-en en 30 min, gratuit et sans engagement.
-          </p>
-          <div className="mt-4">
-            <GradientLink to="/contact" variant="ghost">
-              Réserver un appel
-            </GradientLink>
-          </div>
+                </li>
+              );
+            })}
+          </ul>
         </div>
       </div>
     </div>

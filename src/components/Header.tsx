@@ -56,7 +56,13 @@ export function Header() {
     if (!open) return;
     const onKey = (e: KeyboardEvent) => e.key === "Escape" && setOpen(false);
     window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
+    const root = document.documentElement;
+    const previous = root.style.overflow;
+    root.style.overflow = "hidden";
+    return () => {
+      window.removeEventListener("keydown", onKey);
+      root.style.overflow = previous;
+    };
   }, [open]);
 
   const accountLabel = session ? "Mon espace" : hasAccount ? "Se connecter" : "Créer un compte";
@@ -68,7 +74,8 @@ export function Header() {
       <div ref={sentinel} aria-hidden className="pointer-events-none absolute left-0 top-0 h-3 w-px" />
       <header
         data-scrolled={scrolled || open}
-        className="group/header fixed inset-x-0 top-0 z-50 transition-[background-color,box-shadow,backdrop-filter] duration-300 data-[scrolled=true]:bg-background/80 data-[scrolled=true]:shadow-[0_1px_0_var(--border)] data-[scrolled=true]:backdrop-blur-xl data-[scrolled=true]:backdrop-saturate-150"
+        data-open={open}
+        className="group/header fixed inset-x-0 top-0 z-50 transition-[background-color,box-shadow,backdrop-filter] duration-300 data-[open=true]:!bg-background data-[scrolled=true]:bg-background/80 data-[scrolled=true]:shadow-[0_1px_0_var(--border)] data-[scrolled=true]:backdrop-blur-xl data-[scrolled=true]:backdrop-saturate-150"
       >
         <div className="container-page flex h-16 items-center justify-between gap-6">
           <Logo glow={false} />
@@ -142,7 +149,7 @@ export function Header() {
             <nav
               aria-label="Menu mobile"
               className={cn(
-                "container-page flex flex-col pb-6 pt-2 transition-opacity duration-200",
+                "container-page flex min-h-[calc(100dvh-4rem)] flex-col overflow-y-auto pb-8 pt-2 transition-opacity duration-200",
                 open ? "opacity-100" : "opacity-0",
               )}
             >

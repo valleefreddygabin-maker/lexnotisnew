@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Bot, PhoneCall, Workflow, Network, TrendingUp, Globe, Check, ArrowRight } from "lucide-react";
 import { GradientLink } from "@/components/GradientButton";
+import { PageHero } from "@/components/PageHero";
 import { Reveal } from "@/components/Reveal";
 
 export const Route = createFileRoute("/tarifs")({
@@ -58,6 +59,12 @@ export const Route = createFileRoute("/tarifs")({
       },
     ],
   }),
+  staticData: {
+    cta: {
+      title: "Pas sûr de l'offre à choisir ?",
+      text: "Le premier échange est gratuit et sans engagement : on cadre votre besoin et on vous dit franchement ce qui est utile, et ce qui ne l'est pas.",
+    },
+  },
   component: TarifsPage,
 });
 
@@ -65,9 +72,12 @@ type Offer = {
   name: string;
   icon: typeof Bot;
   description: string;
-  price: string;
-  mrr: string;
+  /** One-off setup, € TTC */
+  from: string;
+  /** Monthly, € */
+  monthly: string;
   included: string[];
+  highlight?: boolean;
 };
 
 const offers: Offer[] = [
@@ -76,8 +86,8 @@ const offers: Offer[] = [
     icon: Bot,
     description:
       "Chatbots, assistants WhatsApp, qualification des prospects et prise de rendez-vous.",
-    price: "À partir de 790 € TTC",
-    mrr: "Puis 199 €/mois",
+    from: "790",
+    monthly: "199",
     included: [
       "Agent conversationnel sur-mesure",
       "Intégration site web, WhatsApp ou Messenger",
@@ -90,8 +100,8 @@ const offers: Offer[] = [
     icon: TrendingUp,
     description:
       "Prospection, création de contenus, relances personnalisées, enrichissement CRM et reporting.",
-    price: "À partir de 990 € TTC",
-    mrr: "Puis 249 €/mois",
+    from: "990",
+    monthly: "249",
     included: [
       "Qualification automatique des leads",
       "Enrichissement et synchronisation CRM",
@@ -104,8 +114,8 @@ const offers: Offer[] = [
     icon: Workflow,
     description:
       "Génération de devis, traitement des e-mails, gestion documentaire, CRM et tâches administratives.",
-    price: "À partir de 1 190 € TTC",
-    mrr: "Puis 249 €/mois",
+    from: "1 190",
+    monthly: "249",
     included: [
       "Analyse de vos processus répétitifs",
       "Flux de travail automatisés",
@@ -118,8 +128,8 @@ const offers: Offer[] = [
     icon: PhoneCall,
     description:
       "Réponse téléphonique, qualification, prise de rendez-vous, transfert d'appel et compte rendu.",
-    price: "À partir de 1 490 € TTC",
-    mrr: "Puis 399 €/mois",
+    from: "1 490",
+    monthly: "399",
     included: [
       "Voix naturelle et scénario personnalisé",
       "Transfert vers un humain si besoin",
@@ -132,8 +142,8 @@ const offers: Offer[] = [
     icon: Globe,
     description:
       "Sites vitrines, e-commerce, intranets et applications web avec intégration chatbot.",
-    price: "À partir de 1990€ TTC",
-    mrr: "Puis 249 €/mois",
+    from: "1 990",
+    monthly: "249",
     included: [
       "Design UX/UI personnalisé",
       "Optimisation performances et SEO",
@@ -145,8 +155,9 @@ const offers: Offer[] = [
     icon: Network,
     description:
       "Plusieurs agents, intégrations et processus réunis dans une solution personnalisée.",
-    price: "À partir de 2490 € TTC",
-    mrr: "Puis 499 €/mois",
+    from: "2 490",
+    monthly: "499",
+    highlight: true,
     included: [
       "Cadrage et architecture complète",
       "Orchestration multi-agents",
@@ -159,103 +170,87 @@ const offers: Offer[] = [
 function TarifsPage() {
   return (
     <div>
-      {/* HERO */}
-      <section className="px-6 py-24 md:py-28">
-        <div className="mx-auto max-w-4xl text-center">
-          <p className="mb-4 text-xs font-semibold uppercase tracking-[0.24em] text-gradient-brand animate-fade-in">
-            Tarifs
-          </p>
-          <h1 className="animate-fade-up text-4xl font-bold tracking-tight md:text-6xl">
-            Des tarifs adaptés à{" "}
-            <span className="text-gradient-brand animate-gradient">votre projet</span>
-          </h1>
-          <p
-            className="animate-fade-up mx-auto mt-6 max-w-2xl text-lg text-muted-foreground"
-            style={{ animationDelay: "150ms" }}
-          >
-            Chaque solution est conçue sur mesure selon vos objectifs, vos outils et la
-            complexité de vos processus.
-          </p>
-        </div>
-      </section>
+      <PageHero
+        label="Tarifs"
+        title={
+          <>
+            Des tarifs adaptés à <span className="text-brand">votre projet.</span>
+          </>
+        }
+        lead="Chaque solution est conçue sur mesure selon vos objectifs, vos outils et la complexité de vos processus."
+      />
 
-      {/* OFFERS GRID */}
-      <section className="px-6 pb-24">
-        <div className="mx-auto max-w-6xl">
-          <div className="grid gap-6 md:grid-cols-2">
-            {offers.map((offer, i) => {
-              const Icon = offer.icon;
-              return (
-                <Reveal key={offer.name} delay={i * 100}>
-                  <div className="group relative flex h-full flex-col rounded-3xl border border-black/10 bg-card/40 p-8 backdrop-blur-sm transition-all duration-300 hover:-translate-y-1 hover:border-brand/40 hover:shadow-glow md:p-10">
-                    <div className="mb-5 inline-flex h-12 w-12 items-center justify-center rounded-2xl border border-black/10 bg-white/60 transition-colors group-hover:border-brand/30">
-                      <Icon className="h-6 w-6" style={{ color: "oklch(0.55 0.24 295)" }} />
-                    </div>
-
-                    <h2 className="text-2xl font-bold tracking-tight md:text-3xl">
-                      {offer.name}
-                    </h2>
-                    <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
-                      {offer.description}
-                    </p>
-
-                    <div className="mt-6">
-                      <span className="text-3xl font-bold text-gradient-brand">
-                        {offer.price}
+      <section className="container-page pb-8">
+        <div className="grid gap-3 md:grid-cols-2 md:gap-4">
+          {offers.map((offer, i) => {
+            const Icon = offer.icon;
+            const dark = offer.highlight;
+            return (
+              <Reveal key={offer.name} delay={(i % 2) * 70}>
+                <article
+                  className={
+                    dark
+                      ? "dark flex h-full flex-col rounded-3xl bg-background p-7 text-foreground md:p-9"
+                      : "surface flex h-full flex-col p-7 md:p-9"
+                  }
+                >
+                  <div className="flex items-start justify-between gap-4">
+                    <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-brand-soft text-brand dark:bg-white/10 dark:text-white">
+                      <Icon size={20} strokeWidth={1.75} />
+                    </span>
+                    {dark && (
+                      <span className="rounded-full bg-white/10 px-3 py-1 text-[12px] font-medium text-white/90">
+                        Le plus complet
                       </span>
-                      <p className="mt-1 text-sm font-medium text-brand">
-                        {offer.mrr}
-                      </p>
-                    </div>
-
-                    <ul className="mt-6 grid gap-2.5">
-                      {offer.included.map((inc) => (
-                        <li key={inc} className="flex items-start gap-2.5 text-sm">
-                          <Check className="mt-0.5 h-4 w-4 shrink-0 text-brand" />
-                          <span className="text-muted-foreground">{inc}</span>
-                        </li>
-                      ))}
-                    </ul>
-
-                    <div className="mt-auto pt-8">
-                      <GradientLink to="/contact" className="!w-full">
-                        Demander un devis <ArrowRight size={16} />
-                      </GradientLink>
-                    </div>
+                    )}
                   </div>
-                </Reveal>
-              );
-            })}
-          </div>
 
-          <p className="mt-10 text-center text-xs text-muted-foreground">
-            Estimations indicatives. Le devis final est établi après un premier
-            échange gratuit et sans engagement.
-          </p>
+                  <h2 className="type-h3 mt-6">{offer.name}</h2>
+                  <p className="mt-2 text-[15px] leading-relaxed text-muted-foreground">
+                    {offer.description}
+                  </p>
+
+                  <div className="mt-7 border-t border-border pt-6">
+                    <p className="text-[13px] text-muted-foreground">À partir de</p>
+                    <p className="mt-1 flex items-baseline gap-1.5">
+                      <span className="text-[44px] font-semibold leading-none tracking-[-0.05em] tabular">
+                        {offer.from} €
+                      </span>
+                      <span className="text-[14px] text-muted-foreground">TTC</span>
+                    </p>
+                    <p className="mt-2 text-[15px] font-medium text-brand dark:text-[oklch(0.78_0.12_289)]">
+                      Puis {offer.monthly} €/mois
+                    </p>
+                  </div>
+
+                  <ul className="mt-6 grid gap-2.5">
+                    {offer.included.map((inc) => (
+                      <li key={inc} className="flex items-start gap-2.5 text-[15px]">
+                        <Check
+                          size={16}
+                          strokeWidth={2}
+                          className="mt-0.5 shrink-0 text-brand dark:text-[oklch(0.78_0.12_289)]"
+                        />
+                        <span className="text-foreground/80">{inc}</span>
+                      </li>
+                    ))}
+                  </ul>
+
+                  <div className="mt-auto pt-8">
+                    <GradientLink to="/contact" variant={dark ? "ink" : "ghost"} className="w-full">
+                      Demander un devis <ArrowRight size={16} />
+                    </GradientLink>
+                  </div>
+                </article>
+              </Reveal>
+            );
+          })}
         </div>
-      </section>
 
-      {/* CTA */}
-      <section className="px-6 py-20">
-        <Reveal>
-          <div className="mx-auto max-w-3xl rounded-3xl border border-black/10 bg-gradient-brand-soft p-12 text-center md:p-16">
-            <h2 className="text-3xl font-bold tracking-tight md:text-4xl">
-              Pas sûr de l'offre à choisir ?
-            </h2>
-            <p className="mx-auto mt-4 max-w-xl text-muted-foreground">
-              Le premier échange est gratuit et sans engagement : on cadre votre besoin et on
-              vous dit franchement ce qui est utile — et ce qui ne l'est pas.
-            </p>
-            <div className="mt-8 flex flex-wrap justify-center gap-3">
-              <GradientLink to="/contact">
-                Parler de mon projet <ArrowRight size={16} />
-              </GradientLink>
-              <GradientLink to="/services" variant="ghost">
-                Voir nos services
-              </GradientLink>
-            </div>
-          </div>
-        </Reveal>
+        <p className="mt-8 text-center text-[14px] text-muted-foreground">
+          Estimations indicatives. Le devis final est établi après un premier échange gratuit et
+          sans engagement.
+        </p>
       </section>
     </div>
   );
